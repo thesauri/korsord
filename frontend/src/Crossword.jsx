@@ -34,12 +34,32 @@ const Crossword = (props) => {
     };
 
     let isDrawing = false;
+    
+    const changeTool = (event) => {
+      if (event.key === 'e') {
+        selectEraser();
+        console.log("eraser selected")
+      } else if (event.key === 'b') {
+        selectBrush();
+        console.log("brush selected")
+      };
+    };
+
+    const selectEraser = () => {
+      context.globalCompositeOperation = "destination-out";
+      context.lineWidth = 12;
+    };
+
+    const selectBrush = () => {
+      context.globalCompositeOperation = "source-over";
+      context.lineWidth = 6;
+    };
 
     const startDrawing = (event) => {
+      
       const [x, y] = getMouseLocation(event);
       context.moveTo(x, y);
       context.beginPath();
-      context.lineWidth = 4;
       isDrawing = true;
     };
 
@@ -56,6 +76,7 @@ const Crossword = (props) => {
       isDrawing = false;
     };
 
+    window.onkeyup = changeTool;
     canvas.onmousedown = startDrawing;
     canvas.onmousemove = draw;
     canvas.onmouseup = stopDrawing;
