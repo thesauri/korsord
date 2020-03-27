@@ -1,0 +1,12 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "app.js",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^7.2.3"
+  },
+  "scripts": {
+    "start": "node app.js"
+  }
+}

@@ -1,7 +1,9 @@
 import React, { useEffect } from "react";
 import { useCallback } from "react";
 import { useState } from "react";
-import "./Crossword.css"
+import "./Crossword.css";
+import { sendEvent, setDrawingListener } from "./api";
+
 
 
 const ERASERSIZE = 18;
@@ -68,6 +70,13 @@ const Crossword = (props) => {
       context.moveTo(x, y);
       context.beginPath();
       isDrawing = true;
+      sendEvent({
+        x, 
+        y, 
+        globalCompositeOperation: context.globalCompositeOperation, 
+        lineWidth: context.lineWidth,
+        action: "START_DRAWING",
+      });
     };
 
     const draw = (event) => {
@@ -77,14 +86,39 @@ const Crossword = (props) => {
       const [x, y] = getMouseLocation(event);
       context.lineTo(x, y);
       context.stroke();
+      sendEvent({
+        x, 
+        y, 
+        globalCompositeOperation: context.globalCompositeOperation,
+        lineWidth: context.lineWidth,
+        action: "DRAWING",
+      });
     };
 
     const stopDrawing = (event) => {
       isDrawing = false;
     };
 
+    const handleExternalDrawing = (drawingEvent) => {
+      const currentGlobalCompositeOperation = context.globalCompositeOperation;
+      const currentLineWidth = context.lineWidth;
+      const { x, y, globalCompositeOperation, lineWidth, action } = drawingEvent;
+      context.globalCompositeOperation = globalCompositeOperation;
+      context.lineWidth = lineWidth;  
+      if (action === "DRAWING") {
+        context.lineTo(x, y);
+        context.stroke();
+      } else if (action === "START_DRAWING") {
+        context.moveTo(x, y);
+        context.beginPath(); 
+      }
+      context.globalCompositeOperation = currentGlobalCompositeOperation;
+      context.lineWidth = currentLineWidth;
+    }
+
     selectBrush();
 
+    setDrawingListener(handleExternalDrawing);
     window.onkeyup = changeTool;
     canvas.onmousedown = startDrawing;
     canvas.onmousemove = draw;
