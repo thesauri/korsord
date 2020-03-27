@@ -1,24 +1,30 @@
-import React, { useRef, useEffect } from 'react';
-import { useCallback } from 'react';
-import { useState } from 'react';
+import React, { useEffect } from "react";
+import { useCallback } from "react";
+import { useState } from "react";
+import "./Crossword.css"
+
+
+const ERASERSIZE = 18;
+const BRUSHSIZE = 6;
 
 const Crossword = (props) => {
   const [canvas, setCanvas] = useState(null);
   const [context, setContext] = useState(null);
 
-  const initCrossword = (context) => {
-    context.drawImage(props.image, 0, 0);
-    setContext(context);
-  };
-
-  const canvasInitializer = useCallback((node) => {
-    if (node !== null) {
-      if (!node.getContext) {
-        return;
-      }
-      initCrossword(node.getContext("2d"));
-      setCanvas(node);
+  const backgroundInitializer = useCallback((backgroundCanvas) => {
+    if (backgroundCanvas === null || !backgroundCanvas.getContext) {
+      return;
     }
+    const context = backgroundCanvas.getContext("2d");
+    context.drawImage(props.image, 0, 0);
+  }, []);
+
+  const canvasInitializer = useCallback((canvas) => {
+    if (canvas === null || !canvas.getContext) {
+      return;
+    }
+    setContext(canvas.getContext("2d"));
+    setCanvas(canvas);
   }, []);
 
   useEffect(() => {
@@ -35,6 +41,7 @@ const Crossword = (props) => {
 
     let isDrawing = false;
     
+    
     const changeTool = (event) => {
       if (event.key === 'e') {
         selectEraser();
@@ -47,12 +54,12 @@ const Crossword = (props) => {
 
     const selectEraser = () => {
       context.globalCompositeOperation = "destination-out";
-      context.lineWidth = 12;
+      context.lineWidth = ERASERSIZE;
     };
 
     const selectBrush = () => {
       context.globalCompositeOperation = "source-over";
-      context.lineWidth = 6;
+      context.lineWidth = BRUSHSIZE;
     };
 
     const startDrawing = (event) => {
@@ -76,6 +83,8 @@ const Crossword = (props) => {
       isDrawing = false;
     };
 
+    selectBrush();
+
     window.onkeyup = changeTool;
     canvas.onmousedown = startDrawing;
     canvas.onmousemove = draw;
@@ -83,7 +92,10 @@ const Crossword = (props) => {
   }, [canvas, context])
 
   return (
-    <canvas width={3508} height={4963} ref={canvasInitializer}></canvas>
+    <div>
+      <canvas width={3508} height={4963} ref={backgroundInitializer} className="crossword"></canvas>
+      <canvas width={3508} height={4963} ref={canvasInitializer} className="crossword"></canvas>
+    </div>
   )
 };
 
