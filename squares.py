@@ -163,7 +163,7 @@ def get_text_squares(squares, img):
             x, y, w, h = cv.boundingRect(cnt)
             avg = np.mean(im_bw[y + 15:y + h - 15, x + 15:x + w - 15])
 
-            has_text[-1].append(avg < 251)
+            has_text[-1].append(avg < 245)
     return has_text
 
 
