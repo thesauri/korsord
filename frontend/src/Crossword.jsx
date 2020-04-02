@@ -118,6 +118,7 @@ const Crossword = (props) => {
       context.lineWidth = currentLineWidth;
       const [x, y] = lastTo;
       context.moveTo(x, y);
+      batchedExternalDrawEvents = [];
     };
 
     const stopDrawing = () => {
