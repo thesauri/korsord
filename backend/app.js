@@ -12,18 +12,16 @@ const db = new sqlite3.Database("./app.db", (err) => {
   console.log("Connected to the SQlite database.");
 });
 
-db.serialize(() => {
-  db.run(
-    "create table if not exists events (" +
-      "id integer primary key," +
-      "url text," +
-      "event text" +
-      ");",
-    (err) => {
-      if (err) console.log(err);
-    }
-  );
-});
+db.run(
+  "create table if not exists events (" +
+    "id integer primary key," +
+    "url text," +
+    "event text" +
+    ");",
+  (err) => {
+    if (err) console.log(err);
+  }
+);
 
 function addEvent(url, event) {
   db.run(
@@ -36,17 +34,15 @@ function addEvent(url, event) {
 }
 
 function getAllEvents(url, callback) {
-  db.serialize(() => {
-    db.all(
-      "select event from events where url = ? order by id asc;",
-      url,
-      (err, rows) => {
-        if (err) console.log(err);
-        const rowsString = "[" + rows.map((r) => r.event).join(",") + "]";
-        callback(rowsString);
-      }
-    );
-  });
+  db.all(
+    "select event from events where url = ? order by id asc;",
+    url,
+    (err, rows) => {
+      if (err) console.log(err);
+      const rowsString = "[" + rows.map((r) => r.event).join(",") + "]";
+      callback(rowsString);
+    }
+  );
 }
 
 wss.on("connection", (ws) => {
