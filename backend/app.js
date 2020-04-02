@@ -23,7 +23,7 @@ db.run(
   }
 );
 
-function addEvent(url, event) {
+const addEvent = (url, event) => {
   db.run(
     "insert into events(url, event) values(?, ?);",
     [url, event],
@@ -31,9 +31,9 @@ function addEvent(url, event) {
       if (err) console.log(err);
     }
   );
-}
+};
 
-function getAllEvents(url, callback) {
+const getAllEvents = (url, callback) => {
   db.all(
     "select event from events where url = ? order by id asc;",
     url,
@@ -43,7 +43,7 @@ function getAllEvents(url, callback) {
       callback(rowsString);
     }
   );
-}
+};
 
 wss.on("connection", (ws) => {
   ws.on("message", (msgString) => {
@@ -60,7 +60,7 @@ wss.on("connection", (ws) => {
       addEvent(url, JSON.stringify(event));
 
       // For debugging
-      getAllEvents(url, (rows) => console.log(rows));
+      getAllEvents(url, (rows) => console.log(JSON.parse(rows)));
 
       wss.clients.forEach(function each(client) {
         if (client !== ws && client.readyState === WebSocket.OPEN) {
