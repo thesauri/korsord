@@ -42,6 +42,7 @@ const Crossword = (props) => {
     };
 
     let isDrawing = false;
+    let lastTo = [-1, -1];
     
     const changeTool = (event) => {
       if (event.key === 'e') {
@@ -66,6 +67,7 @@ const Crossword = (props) => {
     const startDrawing = (event) => {
       const [x, y] = getMouseLocation(event);
       context.moveTo(x, y);
+      lastTo = [x, y];
       context.beginPath();
       isDrawing = true;
       sendEvent({
@@ -83,6 +85,7 @@ const Crossword = (props) => {
       }
       const [x, y] = getMouseLocation(event);
       context.lineTo(x, y);
+      lastTo = [x, y];
       context.stroke();
       sendEvent({
         x, 
@@ -93,25 +96,41 @@ const Crossword = (props) => {
       });
     };
 
-    const stopDrawing = (event) => {
-      isDrawing = false;
-    };
+    const batchedExternalDrawEvents = [];
 
-    const handleExternalDrawing = (drawingEvent) => {
+    const flushExternalDrawingEvents = () => {
       const currentGlobalCompositeOperation = context.globalCompositeOperation;
       const currentLineWidth = context.lineWidth;
-      const { x, y, globalCompositeOperation, lineWidth, action } = drawingEvent;
-      context.globalCompositeOperation = globalCompositeOperation;
-      context.lineWidth = lineWidth;  
-      if (action === "DRAWING") {
-        context.lineTo(x, y);
-        context.stroke();
-      } else if (action === "START_DRAWING") {
-        context.moveTo(x, y);
-        context.beginPath(); 
-      }
+      batchedExternalDrawEvents.forEach(drawingEvent => {
+        const { x, y, globalCompositeOperation, lineWidth, action } = drawingEvent;
+        context.globalCompositeOperation = globalCompositeOperation;
+        context.lineWidth = lineWidth;
+        if (action === "DRAWING") {
+          context.lineTo(x, y);
+        } else if (action === "START_DRAWING") {
+          context.stroke();
+          context.moveTo(x, y);
+          context.beginPath();
+        }
+      });
+      context.stroke();
       context.globalCompositeOperation = currentGlobalCompositeOperation;
       context.lineWidth = currentLineWidth;
+      const [x, y] = lastTo;
+      context.moveTo(x, y);
+    };
+
+    const stopDrawing = () => {
+      isDrawing = false;
+      flushExternalDrawingEvents();
+    };
+
+
+    const handleExternalDrawing = (drawingEvent) => {
+      batchedExternalDrawEvents.push(drawingEvent);
+      if (!isDrawing) {
+        flushExternalDrawingEvents();
+      }
     }
 
     selectBrush();
