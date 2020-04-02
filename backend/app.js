@@ -59,18 +59,22 @@ wss.on("connection", (ws) => {
     if (event.action === "START_DRAWING" || event.action === "DRAWING") {
       addEvent(url, JSON.stringify(event));
 
-      // For debugging
-      getAllEvents(url, (rows) => console.log(JSON.parse(rows)));
-
       wss.clients.forEach(function each(client) {
         if (client !== ws && client.readyState === WebSocket.OPEN) {
           client.send(eventString);
         }
       });
+    } else if (event.action === "REQUEST_DRAWING_HISTORY") {
+      getAllEvents(url, (drawingHistoryString) => {
+        const drawingHistory = JSON.parse(drawingHistoryString);
+        const payload = JSON.stringify({
+          action: "DRAWING_HISTORY",
+          drawingHistory
+        });
+        ws.send(payload);
+      });
     }
   });
-
-  //ws.send(eventHistory);
 });
 
 process.on("SIGINT", function () {
