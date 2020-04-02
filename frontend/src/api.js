@@ -1,12 +1,20 @@
 import { useState, useRef, useEffect } from "react";
 
+const STATIC_TEST_URL = "STATIC_TEST_URL";
+
 export const useApi = () => {
   const socket = useRef(null);
   const onExternalDraw = useRef(() => { console.error("No draw function set" )});
   const [readyState, setReadyState] = useState("CONNECTING");
 
   const requestDrawingHistory = () => {
-    socket.current.send(JSON.stringify({ action: "REQUEST_DRAWING_HISTORY" }));
+    const payload = JSON.stringify({
+      url: STATIC_TEST_URL,
+      event: {
+        action: "REQUEST_DRAWING_HISTORY"
+      }
+    });
+    socket.current.send(payload);
   };
 
   useEffect(() => {
@@ -38,7 +46,11 @@ export const useApi = () => {
       console.error("Unable to send event: connection not open");
       return;
     }
-    socket.current.send(JSON.stringify(data));
+    const payload = JSON.stringify({
+      url: "STATIC_TEST_URL",
+      event: data
+    });
+    socket.current.send(payload);
   }
 
   return [readyState, onExternalDraw, sendEvent];

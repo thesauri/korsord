@@ -10,6 +10,7 @@ node_modules/
 
 # production
 /build
+/backend/app.db
 
 # misc
 .DS_Store
