@@ -1,27 +1,37 @@
 import { useState, useRef, useEffect } from "react";
 
-const STATIC_TEST_URL = "STATIC_TEST_URL";
-
-export const useApi = () => {
+export const useApi = (url) => {
   const socket = useRef(null);
   const onExternalDraw = useRef(() => { console.error("No draw function set" )});
   const [readyState, setReadyState] = useState("CONNECTING");
 
-  const requestDrawingHistory = () => {
-    const payload = JSON.stringify({
-      url: STATIC_TEST_URL,
-      event: {
-        action: "REQUEST_DRAWING_HISTORY"
-      }
-    });
-    socket.current.send(payload);
-  };
-
   useEffect(() => {
     socket.current = new WebSocket("ws://localhost:8080");
 
+      const sendURL = () => {
+      const payload = JSON.stringify({
+        url,
+        event: {
+          action: "OPEN_CONNECTION"
+        }
+      });
+      socket.current.send(payload);
+    };
+
+    const requestDrawingHistory = () => {
+      const payload = JSON.stringify({
+        url,
+        event: {
+          action: "REQUEST_DRAWING_HISTORY"
+        }
+      });
+      socket.current.send(payload);
+    };
+
+
     socket.current.addEventListener("open", () => {
       setReadyState(socket.current.readyState);
+      sendURL();
       requestDrawingHistory();
     });
 
@@ -39,7 +49,7 @@ export const useApi = () => {
         });
       }
     });
-  }, []);
+  }, [url]);
 
   const sendEvent = (data) => {
     if (!socket.current || socket.current.readyState !== WebSocket.OPEN) {
@@ -47,7 +57,7 @@ export const useApi = () => {
       return;
     }
     const payload = JSON.stringify({
-      url: "STATIC_TEST_URL",
+      url,
       event: data
     });
     socket.current.send(payload);

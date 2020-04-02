@@ -11,7 +11,7 @@ const BRUSHSIZE = 6;
 const Crossword = (props) => {
   const [canvas, setCanvas] = useState(null);
   const [context, setContext] = useState(null);
-  const [readyState, onExternalDraw, sendEvent] = useApi();
+  const [readyState, onExternalDraw, sendEvent] = useApi(props.url);
 
   const backgroundInitializer = useCallback((backgroundCanvas) => {
     if (backgroundCanvas === null || !backgroundCanvas.getContext) {

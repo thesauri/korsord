@@ -1,0 +1,28 @@
+.home {
+    height: 100vh - 64px;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.home-new-game {
+    padding: 32px;
+    font-size: 24px;
+    background-color: #fff;
+    color: #b20738;
+    border: 1px solid #b20738;
+    text-transform: uppercase;
+    font-weight: bold;
+    text-decoration: none;
+    text-align: center;
+}
+
+.home > button:hover {
+    border-bottom-width: 2px;
+}
+
+.home-divider {
+    margin: 32px 0;
+}

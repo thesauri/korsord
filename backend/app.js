@@ -49,19 +49,38 @@ wss.on("connection", (ws) => {
   ws.on("message", (msgString) => {
     const msg = JSON.parse(msgString);
     if (!msg.event || !msg.url) {
-      console.error("Invalid msg: " + msg);
+      console.error("Invalid msg: \n" + JSON.stringify(msg));
       return;
     }
 
     const event = msg.event;
     const url = msg.url;
 
+    if (event.action === "OPEN_CONNECTION") {
+      ws._url = url;
+      return;
+    }
+
+    if (!ws._url) {
+      console.error("Drawing action before OPEN_CONNECTION");
+      return;
+    }
+
+    if (ws._url !== url) {
+      console.error("Drawing action to incorrect url");
+      return;
+    }
+
     if (event.action === "START_DRAWING" || event.action === "DRAWING") {
       addEvent(url, JSON.stringify(event));
 
-      wss.clients.forEach(function each(client) {
-        if (client !== ws && client.readyState === WebSocket.OPEN) {
-          client.send(eventString);
+      wss.clients.forEach((client) => {
+        if (
+          client !== ws &&
+          client.readyState === WebSocket.OPEN &&
+          client._ws === ws._url
+        ) {
+          client.send(JSON.stringify(event));
         }
       });
     } else if (event.action === "REQUEST_DRAWING_HISTORY") {
@@ -69,7 +88,7 @@ wss.on("connection", (ws) => {
         const drawingHistory = JSON.parse(drawingHistoryString);
         const payload = JSON.stringify({
           action: "DRAWING_HISTORY",
-          drawingHistory
+          drawingHistory,
         });
         ws.send(payload);
       });
