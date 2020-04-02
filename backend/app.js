@@ -1,6 +1,13 @@
 const WebSocket = require("ws");
+const express = require("express");
+const http = require("http");
 
-const wss = new WebSocket.Server({ port: 8080 });
+const app = express();
+app.use("/", express.static("../frontend/build/"));
+app.use("*", express.static("../frontend/build/"));
+
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
 
 const sqlite3 = require("sqlite3").verbose();
 
@@ -45,6 +52,8 @@ const getAllEvents = (url, callback) => {
   );
 };
 
+clients = {};
+
 wss.on("connection", (ws) => {
   ws.on("message", (msgString) => {
     const msg = JSON.parse(msgString);
@@ -57,16 +66,19 @@ wss.on("connection", (ws) => {
     const url = msg.url;
 
     if (event.action === "OPEN_CONNECTION") {
-      ws._url = url;
+      if (clients[url] === undefined) {
+        clients[url] = [];
+      }
+      clients[url].push(ws);
       return;
     }
 
-    if (!ws._url) {
-      console.error("Drawing action before OPEN_CONNECTION");
+    if (clients[url] === undefined) {
+      console.error("Drawing action to nonexistent url");
       return;
     }
 
-    if (ws._url !== url) {
+    if (clients[url].find((w) => w === ws) === undefined) {
       console.error("Drawing action to incorrect url");
       return;
     }
@@ -74,12 +86,8 @@ wss.on("connection", (ws) => {
     if (event.action === "START_DRAWING" || event.action === "DRAWING") {
       addEvent(url, JSON.stringify(event));
 
-      wss.clients.forEach((client) => {
-        if (
-          client !== ws &&
-          client.readyState === WebSocket.OPEN &&
-          client._ws === ws._url
-        ) {
+      clients[url].forEach((client) => {
+        if (client !== ws && client.readyState === WebSocket.OPEN) {
           client.send(JSON.stringify(event));
         }
       });
@@ -95,6 +103,10 @@ wss.on("connection", (ws) => {
     }
   });
 });
+
+server.listen(process.env.PORT || 8080, () =>
+  console.log(`Server started on port ${server.address().port}`)
+);
 
 process.on("SIGINT", function () {
   db.close((err) => {
