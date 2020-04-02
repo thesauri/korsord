@@ -2,8 +2,7 @@ import React, { useEffect } from "react";
 import { useCallback } from "react";
 import { useState } from "react";
 import "./Crossword.css";
-import { sendEvent, setDrawingListener } from "./api";
-
+import { useApi } from "./api";
 
 
 const ERASERSIZE = 18;
@@ -12,6 +11,7 @@ const BRUSHSIZE = 6;
 const Crossword = (props) => {
   const [canvas, setCanvas] = useState(null);
   const [context, setContext] = useState(null);
+  const [readyState, onExternalDraw, sendEvent] = useApi();
 
   const backgroundInitializer = useCallback((backgroundCanvas) => {
     if (backgroundCanvas === null || !backgroundCanvas.getContext) {
@@ -19,7 +19,7 @@ const Crossword = (props) => {
     }
     const context = backgroundCanvas.getContext("2d");
     context.drawImage(props.image, 0, 0);
-  }, []);
+  }, [props.image]);
 
   const canvasInitializer = useCallback((canvas) => {
     if (canvas === null || !canvas.getContext) {
@@ -30,7 +30,7 @@ const Crossword = (props) => {
   }, []);
 
   useEffect(() => {
-    if (!canvas || !context) {
+    if (!canvas || !context || readyState !== WebSocket.OPEN) {
       return;
     }
 
@@ -42,7 +42,6 @@ const Crossword = (props) => {
     };
 
     let isDrawing = false;
-    
     
     const changeTool = (event) => {
       if (event.key === 'e') {
@@ -65,7 +64,6 @@ const Crossword = (props) => {
     };
 
     const startDrawing = (event) => {
-      
       const [x, y] = getMouseLocation(event);
       context.moveTo(x, y);
       context.beginPath();
@@ -118,12 +116,13 @@ const Crossword = (props) => {
 
     selectBrush();
 
-    setDrawingListener(handleExternalDrawing);
+    onExternalDraw.current = handleExternalDrawing;
+
     window.onkeyup = changeTool;
     canvas.onmousedown = startDrawing;
     canvas.onmousemove = draw;
     canvas.onmouseup = stopDrawing;
-  }, [canvas, context])
+  }, [canvas, context, readyState, sendEvent, onExternalDraw])
 
   return (
     <div>
