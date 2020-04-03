@@ -9,7 +9,13 @@ export const useApi = (url) => {
 
   useEffect(() => {
     console.log(window.location.host);
-    socket.current = new WebSocket("ws://" + window.location.host);
+
+    const isDev =
+      process.env.NODE_ENV && process.env.NODE_ENV === "development";
+    const wsUrl = isDev
+      ? "ws://localhost:8080"
+      : "ws://" + window.location.host;
+    socket.current = new WebSocket(wsUrl);
 
     const sendURL = () => {
       const payload = JSON.stringify({
@@ -46,7 +52,7 @@ export const useApi = (url) => {
       if (event.action === "DRAWING_EVENTS") {
         onExternalDraw.current(event.drawingEvents);
       } else if (event.action === "DRAWING_HISTORY") {
-        event.drawingHistory.forEach(event => {
+        event.drawingHistory.forEach((event) => {
           onExternalDraw.current(event.drawingEvents);
         });
       }
