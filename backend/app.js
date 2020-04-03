@@ -83,7 +83,7 @@ wss.on("connection", (ws) => {
       return;
     }
 
-    if (event.action === "START_DRAWING" || event.action === "DRAWING") {
+    if (event.action === "DRAWING_EVENTS") {
       addEvent(url, JSON.stringify(event));
 
       clients[url].forEach((client) => {
