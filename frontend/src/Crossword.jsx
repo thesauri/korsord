@@ -5,8 +5,8 @@ import "./Crossword.css";
 import { useApi } from "./api";
 
 
-const ERASERSIZE = 18;
-const BRUSHSIZE = 6;
+const ERASERSIZE = 12;
+const BRUSHSIZE = 4;
 
 const Crossword = (props) => {
   const [canvas, setCanvas] = useState(null);
