@@ -5,8 +5,8 @@ import "./Crossword.css";
 import { useApi } from "./api";
 
 
-const ERASERSIZE = 18;
-const BRUSHSIZE = 6;
+const ERASERSIZE = 12;
+const BRUSHSIZE = 4;
 
 const Crossword = (props) => {
   const [canvas, setCanvas] = useState(null);
@@ -64,13 +64,15 @@ const Crossword = (props) => {
       context.lineWidth = BRUSHSIZE;
     };
 
+    let unsentDrawingEvents = [];
+
     const startDrawing = (event) => {
       const [x, y] = getMouseLocation(event);
       context.moveTo(x, y);
       lastTo = [x, y];
       context.beginPath();
       isDrawing = true;
-      sendEvent({
+      unsentDrawingEvents.push({
         x, 
         y, 
         globalCompositeOperation: context.globalCompositeOperation, 
@@ -87,7 +89,7 @@ const Crossword = (props) => {
       context.lineTo(x, y);
       lastTo = [x, y];
       context.stroke();
-      sendEvent({
+      unsentDrawingEvents.push({
         x, 
         y, 
         globalCompositeOperation: context.globalCompositeOperation,
@@ -96,7 +98,7 @@ const Crossword = (props) => {
       });
     };
 
-    const batchedExternalDrawEvents = [];
+    let batchedExternalDrawEvents = [];
 
     const flushExternalDrawingEvents = () => {
       const currentGlobalCompositeOperation = context.globalCompositeOperation;
@@ -107,8 +109,8 @@ const Crossword = (props) => {
         context.lineWidth = lineWidth;
         if (action === "DRAWING") {
           context.lineTo(x, y);
-        } else if (action === "START_DRAWING") {
           context.stroke();
+        } else if (action === "START_DRAWING") {
           context.moveTo(x, y);
           context.beginPath();
         }
@@ -116,18 +118,28 @@ const Crossword = (props) => {
       context.stroke();
       context.globalCompositeOperation = currentGlobalCompositeOperation;
       context.lineWidth = currentLineWidth;
-      const [x, y] = lastTo;
-      context.moveTo(x, y);
+      const [lastX, lastY] = lastTo;
+      context.moveTo(lastX, lastY);
+      batchedExternalDrawEvents = [];
     };
 
     const stopDrawing = () => {
       isDrawing = false;
-      flushExternalDrawingEvents();
+      if (batchedExternalDrawEvents.length > 0) {
+        flushExternalDrawingEvents();
+      }
+      sendEvent({
+        action: "DRAWING_EVENTS",
+        drawingEvents: unsentDrawingEvents
+      });
+      unsentDrawingEvents = [];
     };
 
 
-    const handleExternalDrawing = (drawingEvent) => {
-      batchedExternalDrawEvents.push(drawingEvent);
+    const handleExternalDrawing = (drawingEvents) => {
+      drawingEvents.forEach(drawingEvent => {
+        batchedExternalDrawEvents.push(drawingEvent);
+      });
       if (!isDrawing) {
         flushExternalDrawingEvents();
       }
@@ -145,8 +157,8 @@ const Crossword = (props) => {
 
   return (
     <div>
-      <canvas width={3508} height={4963} ref={backgroundInitializer} className="crossword"></canvas>
-      <canvas width={3508} height={4963} ref={canvasInitializer} className="crossword"></canvas>
+      <canvas width={1193} height={1664} ref={backgroundInitializer} className="crossword"></canvas>
+      <canvas width={1193} height={1664} ref={canvasInitializer} className="crossword"></canvas>
     </div>
   )
 };

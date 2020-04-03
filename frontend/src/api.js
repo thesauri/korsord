@@ -43,11 +43,11 @@ export const useApi = (url) => {
 
     socket.current.addEventListener("message", (data) => {
       const event = JSON.parse(data.data);
-      if (event.action === "START_DRAWING" || event.action === "DRAWING") {
-        onExternalDraw.current(event);
+      if (event.action === "DRAWING_EVENTS") {
+        onExternalDraw.current(event.drawingEvents);
       } else if (event.action === "DRAWING_HISTORY") {
-        event.drawingHistory.forEach((drawingEvent) => {
-          onExternalDraw.current(drawingEvent);
+        event.drawingHistory.forEach(event => {
+          onExternalDraw.current(event.drawingEvents);
         });
       }
     });
