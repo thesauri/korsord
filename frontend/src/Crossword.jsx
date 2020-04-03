@@ -145,8 +145,8 @@ const Crossword = (props) => {
 
   return (
     <div>
-      <canvas width={3508} height={4963} ref={backgroundInitializer} className="crossword"></canvas>
-      <canvas width={3508} height={4963} ref={canvasInitializer} className="crossword"></canvas>
+      <canvas width={1193} height={1664} ref={backgroundInitializer} className="crossword"></canvas>
+      <canvas width={1193} height={1664} ref={canvasInitializer} className="crossword"></canvas>
     </div>
   )
 };
