@@ -2,18 +2,21 @@ import { useState, useRef, useEffect } from "react";
 
 export const useApi = (url) => {
   const socket = useRef(null);
-  const onExternalDraw = useRef(() => { console.error("No draw function set" )});
+  const onExternalDraw = useRef(() => {
+    console.error("No draw function set");
+  });
   const [readyState, setReadyState] = useState("CONNECTING");
 
   useEffect(() => {
-    socket.current = new WebSocket("ws://localhost:8080");
+    console.log(window.location.host);
+    socket.current = new WebSocket("ws://" + window.location.host);
 
-      const sendURL = () => {
+    const sendURL = () => {
       const payload = JSON.stringify({
         url,
         event: {
-          action: "OPEN_CONNECTION"
-        }
+          action: "OPEN_CONNECTION",
+        },
       });
       socket.current.send(payload);
     };
@@ -22,12 +25,11 @@ export const useApi = (url) => {
       const payload = JSON.stringify({
         url,
         event: {
-          action: "REQUEST_DRAWING_HISTORY"
-        }
+          action: "REQUEST_DRAWING_HISTORY",
+        },
       });
       socket.current.send(payload);
     };
-
 
     socket.current.addEventListener("open", () => {
       setReadyState(socket.current.readyState);
@@ -44,7 +46,7 @@ export const useApi = (url) => {
       if (event.action === "START_DRAWING" || event.action === "DRAWING") {
         onExternalDraw.current(event);
       } else if (event.action === "DRAWING_HISTORY") {
-        event.drawingHistory.forEach(drawingEvent => {
+        event.drawingHistory.forEach((drawingEvent) => {
           onExternalDraw.current(drawingEvent);
         });
       }
@@ -58,10 +60,10 @@ export const useApi = (url) => {
     }
     const payload = JSON.stringify({
       url,
-      event: data
+      event: data,
     });
     socket.current.send(payload);
-  }
+  };
 
   return [readyState, onExternalDraw, sendEvent];
 };
