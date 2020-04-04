@@ -4,6 +4,7 @@ import numpy as np
 import cv2 as cv
 from sklearn.cluster import AgglomerativeClustering
 import argparse
+import json
 
 
 def angle_cos(p0, p1, p2):
@@ -292,6 +293,20 @@ def visualize(img_path, squares, has_text):
     show(img)
 
 
+def write(path, squares, has_text):
+    to_write = []
+    for r_sq, r_txt in zip(squares, has_text):
+        to_write.append(list())
+        for cnt, txt in zip(r_sq, r_txt):
+            x, y, w, h = cv.boundingRect(cnt)
+            coord = [x, y, w, h]
+
+            to_write[-1].append({'c': coord, 't': 1 if txt else 0})
+
+    with open(path, 'w') as f:
+        f.write(json.dumps(to_write))
+
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
@@ -313,3 +328,5 @@ if __name__ == '__main__':
     squares, has_text = square_detector.get_squares()
     if args.visualize:
         visualize(args.image[0], squares, has_text)
+
+    write('squares.json', squares, has_text)
