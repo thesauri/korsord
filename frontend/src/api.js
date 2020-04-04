@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { config } from "./Constants";
 
 export const useApi = (url) => {
   const socket = useRef(null);
@@ -8,8 +9,8 @@ export const useApi = (url) => {
   const [readyState, setReadyState] = useState("CONNECTING");
 
   useEffect(() => {
-    console.log(window.location.host);
-    socket.current = new WebSocket("ws://" + window.location.host);
+    console.log(`WS_URL: ${config.WS_URL}`);
+    socket.current = new WebSocket(config.WS_URL);
 
     const sendURL = () => {
       const payload = JSON.stringify({
