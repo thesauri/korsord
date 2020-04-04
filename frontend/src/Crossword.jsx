@@ -11,12 +11,19 @@ const coordGrid = createCoordGrid();
 const ERASERSIZE = 12;
 const BRUSHSIZE = 4;
 
+const DRAW = 0;
+const WRITE = 1;
+
 const Crossword = (props) => {
   const [canvas, setCanvas] = useState(null);
   const [context, setContext] = useState(null);
+
+  const [readyState, onExternalDraw, sendEvent] = useApi(props.url);
+
+  const [mode, setMode] = useState(WRITE);
+
   const [cursorRC, setCursorRC] = useState([0, 0]);
   const [letters, setLetters] = useState(createLetterArr());
-  const [readyState, onExternalDraw, sendEvent] = useApi(props.url);
 
   const backgroundInitializer = useCallback(
     (backgroundCanvas) => {
@@ -37,6 +44,42 @@ const Crossword = (props) => {
     setCanvas(canvas);
   }, []);
 
+  const cursorKey = (key) => {
+    let newRC = [...cursorRC];
+
+    if (key === "ArrowDown" || key === "Down") {
+      newRC[0] += 1;
+    } else if (key === "ArrowUp" || key === "Up") {
+      newRC[0] -= 1;
+    } else if (key === "ArrowLeft" || key === "Left") {
+      newRC[1] -= 1;
+    } else if (key === "ArrowRight" || key === "Right") {
+      newRC[1] += 1;
+    } else {
+      return false;
+    }
+
+    setCursorRC(newRC);
+    return true;
+  };
+
+  const escSwitchMode = (key) => {
+    if (key === "Escape" || key === "Esc") {
+      setMode(DRAW);
+      return true;
+    }
+
+    return false;
+  };
+
+  const letterKey = (key) => {
+    const newLetters = [...letters];
+    newLetters[coordGrid[cursorRC[0]][cursorRC[1]]].l = key;
+    setLetters(newLetters);
+
+    return true;
+  };
+
   useEffect(() => {
     if (!canvas || !context || readyState !== WebSocket.OPEN) {
       return;
@@ -52,42 +95,23 @@ const Crossword = (props) => {
     let isDrawing = false;
     let lastTo = [-1, -1];
 
-    const cursorKey = (key) => {
-      let newRC = [...cursorRC];
-
-      if (key === "ArrowDown" || key === "Down") {
-        newRC[0] += 1;
-      } else if (key === "ArrowUp" || key === "Up") {
-        newRC[0] -= 1;
-      } else if (key === "ArrowLeft" || key === "Left") {
-        newRC[1] -= 1;
-      } else if (key === "ArrowRight" || key === "Right") {
-        newRC[1] += 1;
-      } else {
-        return false;
-      }
-
-      setCursorRC(newRC);
-      return true;
-    };
-
-    const letterKey = (key) => {};
-
     const handleKey = (event) => {
       console.log(event.key);
-      if (event.key === "e") {
-        selectEraser();
-        console.log("eraser selected");
-      } else if (event.key === "b") {
-        selectBrush();
-        console.log("brush selected");
-      } else {
-        if (cursorKey(event.key)) return;
 
-        const newLetters = [...letters];
-        newLetters[coordGrid[cursorRC[0]][cursorRC[1]]].l = event.key;
-        setLetters(newLetters);
-        console.log(letters);
+      if (mode == DRAW) {
+        if (event.key === "Enter") {
+          setMode(WRITE);
+        } else if (event.key === "e") {
+          selectEraser();
+          console.log("eraser selected");
+        } else if (event.key === "b") {
+          selectBrush();
+          console.log("brush selected");
+        }
+      } else {
+        cursorKey(event.key) ||
+          escSwitchMode(event.key) ||
+          letterKey(event.key);
       }
     };
 
@@ -205,7 +229,7 @@ const Crossword = (props) => {
         ref={backgroundInitializer}
         className="crossword"
       ></canvas>
-      <Grid cursorRC={cursorRC} letters={letters} showCursor={true} />
+      <Grid cursorRC={cursorRC} letters={letters} showCursor={mode === WRITE} />
       <canvas
         width={1193}
         height={1664}
