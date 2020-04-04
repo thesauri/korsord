@@ -9,7 +9,7 @@ export const useApi = (url) => {
   const [readyState, setReadyState] = useState("CONNECTING");
 
   useEffect(() => {
-    console.log(config.WS_URL);
+    console.log(`WS_URL: ${config.WS_URL}`);
     socket.current = new WebSocket(config.WS_URL);
 
     const sendURL = () => {
@@ -47,7 +47,7 @@ export const useApi = (url) => {
       if (event.action === "DRAWING_EVENTS") {
         onExternalDraw.current(event.drawingEvents);
       } else if (event.action === "DRAWING_HISTORY") {
-        event.drawingHistory.forEach(event => {
+        event.drawingHistory.forEach((event) => {
           onExternalDraw.current(event.drawingEvents);
         });
       }
