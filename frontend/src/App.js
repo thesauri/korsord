@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import Crossword from "./Crossword";
 import crosswordUrl from "./crossword.jpg";
-import './App.css';
-import { useParams } from 'react-router-dom';
+import "./App.css";
+import { useParams } from "react-router-dom";
 
 function App() {
   const [crosswordImage, setCrosswordImage] = useState(null);
@@ -18,9 +18,7 @@ function App() {
 
   return (
     <div className="app">
-      { crosswordImage && url &&
-        <Crossword image={crosswordImage} url={url} />
-      }
+      {crosswordImage && url && <Crossword image={crosswordImage} url={url} />}
     </div>
   );
 }

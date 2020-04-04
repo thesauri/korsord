@@ -16,8 +16,8 @@ export const useApi = (url) => {
       const payload = JSON.stringify({
         url,
         event: {
-          action: "OPEN_CONNECTION",
-        },
+          action: "OPEN_CONNECTION"
+        }
       });
       socket.current.send(payload);
     };
@@ -26,8 +26,8 @@ export const useApi = (url) => {
       const payload = JSON.stringify({
         url,
         event: {
-          action: "REQUEST_DRAWING_HISTORY",
-        },
+          action: "REQUEST_DRAWING_HISTORY"
+        }
       });
       socket.current.send(payload);
     };
@@ -61,7 +61,7 @@ export const useApi = (url) => {
     }
     const payload = JSON.stringify({
       url,
-      event: data,
+      event: data
     });
     socket.current.send(payload);
   };

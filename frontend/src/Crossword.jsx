@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import { useCallback } from "react";
 import { useState } from "react";
+
 import "./Crossword.css";
 import { useApi } from "./api";
-
 
 const ERASERSIZE = 12;
 const BRUSHSIZE = 4;
@@ -13,13 +13,16 @@ const Crossword = (props) => {
   const [context, setContext] = useState(null);
   const [readyState, onExternalDraw, sendEvent] = useApi(props.url);
 
-  const backgroundInitializer = useCallback((backgroundCanvas) => {
-    if (backgroundCanvas === null || !backgroundCanvas.getContext) {
-      return;
-    }
-    const context = backgroundCanvas.getContext("2d");
-    context.drawImage(props.image, 0, 0);
-  }, [props.image]);
+  const backgroundInitializer = useCallback(
+    (backgroundCanvas) => {
+      if (backgroundCanvas === null || !backgroundCanvas.getContext) {
+        return;
+      }
+      const context = backgroundCanvas.getContext("2d");
+      context.drawImage(props.image, 0, 0);
+    },
+    [props.image]
+  );
 
   const canvasInitializer = useCallback((canvas) => {
     if (canvas === null || !canvas.getContext) {
@@ -43,15 +46,15 @@ const Crossword = (props) => {
 
     let isDrawing = false;
     let lastTo = [-1, -1];
-    
+
     const changeTool = (event) => {
-      if (event.key === 'e') {
+      if (event.key === "e") {
         selectEraser();
-        console.log("eraser selected")
-      } else if (event.key === 'b') {
+        console.log("eraser selected");
+      } else if (event.key === "b") {
         selectBrush();
-        console.log("brush selected")
-      };
+        console.log("brush selected");
+      }
     };
 
     const selectEraser = () => {
@@ -73,11 +76,11 @@ const Crossword = (props) => {
       context.beginPath();
       isDrawing = true;
       unsentDrawingEvents.push({
-        x, 
-        y, 
-        globalCompositeOperation: context.globalCompositeOperation, 
+        x,
+        y,
+        globalCompositeOperation: context.globalCompositeOperation,
         lineWidth: context.lineWidth,
-        action: "START_DRAWING",
+        action: "START_DRAWING"
       });
     };
 
@@ -90,11 +93,11 @@ const Crossword = (props) => {
       lastTo = [x, y];
       context.stroke();
       unsentDrawingEvents.push({
-        x, 
-        y, 
+        x,
+        y,
         globalCompositeOperation: context.globalCompositeOperation,
         lineWidth: context.lineWidth,
-        action: "DRAWING",
+        action: "DRAWING"
       });
     };
 
@@ -103,8 +106,14 @@ const Crossword = (props) => {
     const flushExternalDrawingEvents = () => {
       const currentGlobalCompositeOperation = context.globalCompositeOperation;
       const currentLineWidth = context.lineWidth;
-      batchedExternalDrawEvents.forEach(drawingEvent => {
-        const { x, y, globalCompositeOperation, lineWidth, action } = drawingEvent;
+      batchedExternalDrawEvents.forEach((drawingEvent) => {
+        const {
+          x,
+          y,
+          globalCompositeOperation,
+          lineWidth,
+          action
+        } = drawingEvent;
         context.globalCompositeOperation = globalCompositeOperation;
         context.lineWidth = lineWidth;
         if (action === "DRAWING") {
@@ -135,15 +144,14 @@ const Crossword = (props) => {
       unsentDrawingEvents = [];
     };
 
-
     const handleExternalDrawing = (drawingEvents) => {
-      drawingEvents.forEach(drawingEvent => {
+      drawingEvents.forEach((drawingEvent) => {
         batchedExternalDrawEvents.push(drawingEvent);
       });
       if (!isDrawing) {
         flushExternalDrawingEvents();
       }
-    }
+    };
 
     selectBrush();
 
@@ -153,14 +161,24 @@ const Crossword = (props) => {
     canvas.onmousedown = startDrawing;
     canvas.onmousemove = draw;
     canvas.onmouseup = stopDrawing;
-  }, [canvas, context, readyState, sendEvent, onExternalDraw])
+  }, [canvas, context, readyState, sendEvent, onExternalDraw]);
 
   return (
     <div>
-      <canvas width={1193} height={1664} ref={backgroundInitializer} className="crossword"></canvas>
-      <canvas width={1193} height={1664} ref={canvasInitializer} className="crossword"></canvas>
+      <canvas
+        width={1193}
+        height={1664}
+        ref={backgroundInitializer}
+        className="crossword"
+      ></canvas>
+      <canvas
+        width={1193}
+        height={1664}
+        ref={canvasInitializer}
+        className="crossword"
+      ></canvas>
     </div>
-  )
+  );
 };
 
 export default Crossword;
