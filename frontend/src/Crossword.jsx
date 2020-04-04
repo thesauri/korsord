@@ -99,7 +99,7 @@ const Crossword = (props) => {
 
       return false;
     },
-    [cursorRC, letters]
+    [cursorRC, letters, sendEvent]
   );
 
   useEffect(() => {
@@ -257,7 +257,8 @@ const Crossword = (props) => {
     onExternalWrite,
     mode,
     letterKey,
-    cursorKey
+    cursorKey,
+    letters
   ]);
 
   // Prevent arrow key scrolling if mode === WRITE

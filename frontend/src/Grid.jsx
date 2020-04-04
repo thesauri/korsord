@@ -30,20 +30,29 @@ const Grid = (props) => {
     setCursorCanvas(canvas);
   }, []);
 
-  const letterReady = () => letterCanvas && letterContext;
-  const cursorReady = () => cursorCanvas && cursorContext;
+  const letterReady = useCallback(() => letterCanvas && letterContext, [
+    letterCanvas,
+    letterContext
+  ]);
+  const cursorReady = useCallback(() => cursorCanvas && cursorContext, [
+    cursorCanvas,
+    cursorContext
+  ]);
 
-  const drawCursor = (rc) => {
-    const sq = squares[rc[0]][rc[1]];
-    const [x, y, w, h] = sq.c;
-    if (sq.t) {
-      cursorContext.strokeStyle = "rgb(255, 0, 0)";
-    } else {
-      cursorContext.strokeStyle = "rgb(0, 255, 0)";
-    }
-    cursorContext.strokeRect(x, y, w, h);
-    cursorContext.strokeStyle = "rgb(0, 0, 0)";
-  };
+  const drawCursor = useCallback(
+    (rc) => {
+      const sq = squares[rc[0]][rc[1]];
+      const [x, y, w, h] = sq.c;
+      if (sq.t) {
+        cursorContext.strokeStyle = "rgb(255, 0, 0)";
+      } else {
+        cursorContext.strokeStyle = "rgb(0, 255, 0)";
+      }
+      cursorContext.strokeRect(x, y, w, h);
+      cursorContext.strokeStyle = "rgb(0, 0, 0)";
+    },
+    [cursorContext]
+  );
 
   useEffect(() => {
     if (!cursorReady()) {
@@ -51,7 +60,14 @@ const Grid = (props) => {
     }
     cursorContext.clearRect(0, 0, cursorCanvas.width, cursorCanvas.height);
     if (props.showCursor) drawCursor(props.cursorRC);
-  }, [props.cursorRC, props.showCursor]);
+  }, [
+    props.cursorRC,
+    props.showCursor,
+    cursorCanvas,
+    cursorContext,
+    drawCursor,
+    cursorReady
+  ]);
 
   useEffect(() => {
     if (!letterReady()) {
@@ -71,7 +87,7 @@ const Grid = (props) => {
         letterContext.fillText(l, x + w / 2, y + h - 5);
       }
     });
-  }, [props.letters]);
+  }, [props.letters, letterContext, letterReady]);
 
   return (
     <div>
