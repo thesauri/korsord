@@ -80,7 +80,7 @@ const Crossword = (props) => {
         y,
         globalCompositeOperation: context.globalCompositeOperation,
         lineWidth: context.lineWidth,
-        action: "START_DRAWING",
+        action: "START_DRAWING"
       });
     };
 
@@ -97,7 +97,7 @@ const Crossword = (props) => {
         y,
         globalCompositeOperation: context.globalCompositeOperation,
         lineWidth: context.lineWidth,
-        action: "DRAWING",
+        action: "DRAWING"
       });
     };
 
@@ -112,7 +112,7 @@ const Crossword = (props) => {
           y,
           globalCompositeOperation,
           lineWidth,
-          action,
+          action
         } = drawingEvent;
         context.globalCompositeOperation = globalCompositeOperation;
         context.lineWidth = lineWidth;
@@ -139,7 +139,7 @@ const Crossword = (props) => {
       }
       sendEvent({
         action: "DRAWING_EVENTS",
-        drawingEvents: unsentDrawingEvents,
+        drawingEvents: unsentDrawingEvents
       });
       unsentDrawingEvents = [];
     };
