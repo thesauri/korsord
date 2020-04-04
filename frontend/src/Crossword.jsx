@@ -1,10 +1,12 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import { useCallback } from "react";
 import { useState } from "react";
 
 import "./Crossword.css";
 import { useApi } from "./api";
 import { squares, createLetterArr, createCoordGrid } from "./squares";
+
+import Grid from "./Grid.jsx";
 
 const coordGrid = createCoordGrid();
 
@@ -45,21 +47,22 @@ const Crossword = (props) => {
   }, []);
 
   const cursorKey = (key) => {
-    let newRC = [...cursorRC];
+    let [r, c] = cursorRC;
 
     if (key === "ArrowDown" || key === "Down") {
-      newRC[0] += 1;
+      r += 1;
     } else if (key === "ArrowUp" || key === "Up") {
-      newRC[0] -= 1;
+      r -= 1;
     } else if (key === "ArrowLeft" || key === "Left") {
-      newRC[1] -= 1;
+      c -= 1;
     } else if (key === "ArrowRight" || key === "Right") {
-      newRC[1] += 1;
+      c += 1;
     } else {
       return false;
     }
 
-    setCursorRC(newRC);
+    if (r >= 0 && r < squares.length && c >= 0 && c < squares[r].length)
+      setCursorRC([r, c]);
     return true;
   };
 
@@ -73,11 +76,17 @@ const Crossword = (props) => {
   };
 
   const letterKey = (key) => {
-    const newLetters = [...letters];
-    newLetters[coordGrid[cursorRC[0]][cursorRC[1]]].l = key;
-    setLetters(newLetters);
+    const isLetter =
+      key.length === 1 && key.toUpperCase().match(/[A-Z|Å|Ä|Ö]/i);
+    if (isLetter) {
+      const newLetters = [...letters];
+      newLetters[coordGrid[cursorRC[0]][cursorRC[1]]].l = key.toUpperCase();
+      setLetters(newLetters);
 
-    return true;
+      return true;
+    }
+
+    return false;
   };
 
   useEffect(() => {
@@ -96,8 +105,6 @@ const Crossword = (props) => {
     let lastTo = [-1, -1];
 
     const handleKey = (event) => {
-      console.log(event.key);
-
       if (mode == DRAW) {
         if (event.key === "Enter") {
           setMode(WRITE);
@@ -234,92 +241,6 @@ const Crossword = (props) => {
         width={1193}
         height={1664}
         ref={canvasInitializer}
-        className="crossword"
-      ></canvas>
-    </div>
-  );
-};
-
-const Grid = (props) => {
-  const [letterCanvas, setLetterCanvas] = useState(null);
-  const [cursorCanvas, setCursorCanvas] = useState(null);
-  const [letterContext, setLetterContext] = useState(null);
-  const [cursorContext, setCursorContext] = useState(null);
-
-  const letterCanvasInitializer = useCallback((canvas) => {
-    if (canvas === null || !canvas.getContext) {
-      return;
-    }
-    setLetterContext(canvas.getContext("2d"));
-    setLetterCanvas(canvas);
-  }, []);
-
-  const cursorCanvasInitializer = useCallback((canvas) => {
-    if (canvas === null || !canvas.getContext) {
-      return;
-    }
-    const context = canvas.getContext("2d");
-    context.lineWidth = 3;
-    setCursorContext(context);
-    setCursorCanvas(canvas);
-  }, []);
-
-  const letterReady = () => letterCanvas && letterContext;
-  const cursorReady = () => cursorCanvas && cursorContext;
-
-  const drawCursor = (rc) => {
-    const sq = squares[rc[0]][rc[1]];
-    const [x, y, w, h] = sq.c;
-    if (sq.t) {
-      cursorContext.strokeStyle = "rgb(255, 0, 0)";
-    } else {
-      cursorContext.strokeStyle = "rgb(0, 255, 0)";
-    }
-    cursorContext.strokeRect(x, y, w, h);
-    cursorContext.strokeStyle = "rgb(0, 0, 0)";
-  };
-
-  useEffect(() => {
-    if (!cursorReady()) {
-      return;
-    }
-    cursorContext.clearRect(0, 0, cursorCanvas.width, cursorCanvas.height);
-    if (props.showCursor) drawCursor(props.cursorRC);
-  }, [props.cursorRC, props.showCursor]);
-
-  useEffect(() => {
-    if (!letterReady()) {
-      return;
-    }
-
-    const getSq = (r, c) => squares[r][c];
-    props.letters.forEach(({ l, r, c }) => {
-      const sq = getSq(r, c);
-      const [x, y, w, h] = sq.c; // squares[r][c].c;
-
-      letterContext.globalCompositeOperation = "destination-out";
-      letterContext.fillRect(x, y, w, h);
-      letterContext.globalCompositeOperation = "source-over";
-
-      if (l && !sq.t) {
-        letterContext.font = "48px serif";
-        letterContext.fillText(l, x, y + h);
-      }
-    });
-  }, [props.letters]);
-
-  return (
-    <div>
-      <canvas
-        width={1193}
-        height={1664}
-        ref={letterCanvasInitializer}
-        className="crossword"
-      ></canvas>
-      <canvas
-        width={1193}
-        height={1664}
-        ref={cursorCanvasInitializer}
         className="crossword"
       ></canvas>
     </div>
