@@ -20,7 +20,9 @@ const Crossword = (props) => {
   const [canvas, setCanvas] = useState(null);
   const [context, setContext] = useState(null);
 
-  const [readyState, onExternalDraw, sendEvent] = useApi(props.url);
+  const [readyState, onExternalDraw, onExternalWrite, sendEvent] = useApi(
+    props.url
+  );
 
   const [mode, setMode] = useState(WRITE);
 
@@ -86,6 +88,11 @@ const Crossword = (props) => {
         const newLetters = [...letters];
         newLetters[coordGrid[cursorRC[0]][cursorRC[1]]].l = key.toUpperCase();
         setLetters(newLetters);
+
+        sendEvent({
+          action: "WRITE_EVENT",
+          event: { l: key.toUpperCase(), r: cursorRC[0], c: cursorRC[1] }
+        });
 
         return true;
       }
@@ -228,6 +235,15 @@ const Crossword = (props) => {
 
     onExternalDraw.current = handleExternalDrawing;
 
+    const handleExternalWrite = (writeHistory) => {
+      const newLetters = [...letters];
+      writeHistory.forEach(({ l, r, c }, i) => {
+        newLetters[coordGrid[r][c]].l = l;
+      });
+      setLetters(newLetters);
+    };
+    onExternalWrite.current = handleExternalWrite;
+
     window.onkeyup = handleKey;
     canvas.onmousedown = startDrawing;
     canvas.onmousemove = draw;
@@ -238,6 +254,7 @@ const Crossword = (props) => {
     readyState,
     sendEvent,
     onExternalDraw,
+    onExternalWrite,
     mode,
     letterKey,
     cursorKey
