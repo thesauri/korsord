@@ -243,6 +243,15 @@ const Crossword = (props) => {
     cursorKey
   ]);
 
+  // Prevent arrow key scrolling if mode === WRITE
+  useEffect(() => {
+    window.onkeydown = (event) => {
+      if (mode === WRITE && [32, 37, 38, 39, 40].indexOf(event.keyCode) > -1) {
+        event.preventDefault();
+      }
+    };
+  }, [mode]);
+
   return (
     <div>
       <canvas
