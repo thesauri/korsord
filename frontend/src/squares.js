@@ -23,6 +23,8 @@ export const createCoordGrid = () => {
   return grid;
 };
 
+export const medianSquareSize = 38;
+
 export const squares = [
   [
     {

@@ -257,7 +257,7 @@ class SquareDetector():
         squares = self.squares_from_points(points)
         has_text = self.get_text_squares(squares, img)
 
-        return squares, has_text
+        return squares, has_text, median_len
 
 
 def show(img):
@@ -293,7 +293,7 @@ def visualize(img_path, squares, has_text):
     show(img)
 
 
-def write(path, squares, has_text):
+def write(path, squares, has_text, median_len):
     to_write = []
     for r_sq, r_txt in zip(squares, has_text):
         to_write.append(list())
@@ -304,7 +304,7 @@ def write(path, squares, has_text):
             to_write[-1].append({'c': coord, 't': 1 if txt else 0})
 
     with open(path, 'w') as f:
-        f.write(json.dumps(to_write))
+        f.write(json.dumps({'grid': to_write, 'medianLen': median_len}))
 
 
 if __name__ == '__main__':
@@ -325,8 +325,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     square_detector = SquareDetector(args.image[0], args.debug)
-    squares, has_text = square_detector.get_squares()
+    squares, has_text, median_len = square_detector.get_squares()
     if args.visualize:
         visualize(args.image[0], squares, has_text)
 
-    write('squares.json', squares, has_text)
+    write('squares.json', squares, has_text, median_len)

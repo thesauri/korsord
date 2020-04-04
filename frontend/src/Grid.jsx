@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback, useState } from "react";
-import { squares } from "./squares";
+import { squares, medianSquareSize } from "./squares";
 
 const Grid = (props) => {
   const [letterCanvas, setLetterCanvas] = useState(null);
@@ -11,7 +11,12 @@ const Grid = (props) => {
     if (canvas === null || !canvas.getContext) {
       return;
     }
-    setLetterContext(canvas.getContext("2d"));
+
+    const letterContext = canvas.getContext("2d");
+    letterContext.font = `bold ${medianSquareSize}px sans`;
+    letterContext.textAlign = "center";
+
+    setLetterContext(letterContext);
     setLetterCanvas(canvas);
   }, []);
 
@@ -63,8 +68,7 @@ const Grid = (props) => {
       letterContext.globalCompositeOperation = "source-over";
 
       if (l && !sq.t) {
-        letterContext.font = "48px serif";
-        letterContext.fillText(l, x, y + h);
+        letterContext.fillText(l, x + w / 2, y + h - 5);
       }
     });
   }, [props.letters]);

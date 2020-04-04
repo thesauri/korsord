@@ -46,25 +46,28 @@ const Crossword = (props) => {
     setCanvas(canvas);
   }, []);
 
-  const cursorKey = (key) => {
-    let [r, c] = cursorRC;
+  const cursorKey = useCallback(
+    (key) => {
+      let [r, c] = cursorRC;
 
-    if (key === "ArrowDown" || key === "Down") {
-      r += 1;
-    } else if (key === "ArrowUp" || key === "Up") {
-      r -= 1;
-    } else if (key === "ArrowLeft" || key === "Left") {
-      c -= 1;
-    } else if (key === "ArrowRight" || key === "Right") {
-      c += 1;
-    } else {
-      return false;
-    }
+      if (key === "ArrowDown" || key === "Down") {
+        r += 1;
+      } else if (key === "ArrowUp" || key === "Up") {
+        r -= 1;
+      } else if (key === "ArrowLeft" || key === "Left") {
+        c -= 1;
+      } else if (key === "ArrowRight" || key === "Right") {
+        c += 1;
+      } else {
+        return false;
+      }
 
-    if (r >= 0 && r < squares.length && c >= 0 && c < squares[r].length)
-      setCursorRC([r, c]);
-    return true;
-  };
+      if (r >= 0 && r < squares.length && c >= 0 && c < squares[r].length)
+        setCursorRC([r, c]);
+      return true;
+    },
+    [cursorRC]
+  );
 
   const escSwitchMode = (key) => {
     if (key === "Escape" || key === "Esc") {
@@ -75,19 +78,22 @@ const Crossword = (props) => {
     return false;
   };
 
-  const letterKey = (key) => {
-    const isLetter =
-      key.length === 1 && key.toUpperCase().match(/[A-Z|Å|Ä|Ö]/i);
-    if (isLetter) {
-      const newLetters = [...letters];
-      newLetters[coordGrid[cursorRC[0]][cursorRC[1]]].l = key.toUpperCase();
-      setLetters(newLetters);
+  const letterKey = useCallback(
+    (key) => {
+      const isLetter =
+        key.length === 1 && key.toUpperCase().match(/[A-Z|Å|Ä|Ö]/i);
+      if (isLetter) {
+        const newLetters = [...letters];
+        newLetters[coordGrid[cursorRC[0]][cursorRC[1]]].l = key.toUpperCase();
+        setLetters(newLetters);
 
-      return true;
-    }
+        return true;
+      }
 
-    return false;
-  };
+      return false;
+    },
+    [cursorRC, letters]
+  );
 
   useEffect(() => {
     if (!canvas || !context || readyState !== WebSocket.OPEN) {
@@ -105,7 +111,7 @@ const Crossword = (props) => {
     let lastTo = [-1, -1];
 
     const handleKey = (event) => {
-      if (mode == DRAW) {
+      if (mode === DRAW) {
         if (event.key === "Enter") {
           setMode(WRITE);
         } else if (event.key === "e") {
@@ -226,7 +232,16 @@ const Crossword = (props) => {
     canvas.onmousedown = startDrawing;
     canvas.onmousemove = draw;
     canvas.onmouseup = stopDrawing;
-  }, [canvas, context, readyState, sendEvent, onExternalDraw]);
+  }, [
+    canvas,
+    context,
+    readyState,
+    sendEvent,
+    onExternalDraw,
+    mode,
+    letterKey,
+    cursorKey
+  ]);
 
   return (
     <div>
