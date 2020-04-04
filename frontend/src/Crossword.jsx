@@ -82,17 +82,26 @@ const Crossword = (props) => {
 
   const letterKey = useCallback(
     (key) => {
-      const isLetter =
-        key.length === 1 && key.toUpperCase().match(/[A-Z|Å|Ä|Ö]/i);
-      if (isLetter) {
+      const updateAndSend = (newValue) => {
+        const [r, c] = cursorRC;
         const newLetters = [...letters];
-        newLetters[coordGrid[cursorRC[0]][cursorRC[1]]].l = key.toUpperCase();
+        newLetters[coordGrid[r][c]].l = newValue;
         setLetters(newLetters);
 
         sendEvent({
           action: "WRITE_EVENT",
-          event: { l: key.toUpperCase(), r: cursorRC[0], c: cursorRC[1] }
+          event: { l: newValue, r, c }
         });
+      };
+
+      const isLetter =
+        key.length === 1 && key.toUpperCase().match(/[A-Z|Å|Ä|Ö]/i);
+      if (isLetter) {
+        updateAndSend(key.toUpperCase());
+
+        return true;
+      } else if (key === "Backspace") {
+        updateAndSend("");
 
         return true;
       }
