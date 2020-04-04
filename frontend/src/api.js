@@ -15,8 +15,8 @@ export const useApi = (url) => {
       const payload = JSON.stringify({
         url,
         event: {
-          action: "OPEN_CONNECTION",
-        },
+          action: "OPEN_CONNECTION"
+        }
       });
       socket.current.send(payload);
     };
@@ -25,8 +25,8 @@ export const useApi = (url) => {
       const payload = JSON.stringify({
         url,
         event: {
-          action: "REQUEST_DRAWING_HISTORY",
-        },
+          action: "REQUEST_DRAWING_HISTORY"
+        }
       });
       socket.current.send(payload);
     };
@@ -46,7 +46,7 @@ export const useApi = (url) => {
       if (event.action === "DRAWING_EVENTS") {
         onExternalDraw.current(event.drawingEvents);
       } else if (event.action === "DRAWING_HISTORY") {
-        event.drawingHistory.forEach(event => {
+        event.drawingHistory.forEach((event) => {
           onExternalDraw.current(event.drawingEvents);
         });
       }
@@ -60,7 +60,7 @@ export const useApi = (url) => {
     }
     const payload = JSON.stringify({
       url,
-      event: data,
+      event: data
     });
     socket.current.send(payload);
   };
