@@ -1,3 +1,28 @@
+export const createLetterArr = () => {
+  const arr = [];
+
+  squares.forEach((row, r) => {
+    row.forEach((_, c) => {
+      arr.push({ l: "", r, c });
+    });
+  });
+
+  return arr;
+};
+
+export const createCoordGrid = () => {
+  const grid = [];
+  let idx = 0;
+  squares.forEach((row) => {
+    grid.push([]);
+    row.forEach((_) => {
+      grid[grid.length - 1].push(idx);
+      idx += 1;
+    });
+  });
+  return grid;
+};
+
 export const squares = [
   [
     {

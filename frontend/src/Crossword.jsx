@@ -1,9 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useCallback } from "react";
 import { useState } from "react";
 
 import "./Crossword.css";
 import { useApi } from "./api";
+import { squares, createLetterArr, createCoordGrid } from "./squares";
+
+const coordGrid = createCoordGrid();
 
 const ERASERSIZE = 12;
 const BRUSHSIZE = 4;
@@ -11,6 +14,8 @@ const BRUSHSIZE = 4;
 const Crossword = (props) => {
   const [canvas, setCanvas] = useState(null);
   const [context, setContext] = useState(null);
+  const [cursorRC, setCursorRC] = useState([0, 0]);
+  const [letters, setLetters] = useState(createLetterArr());
   const [readyState, onExternalDraw, sendEvent] = useApi(props.url);
 
   const backgroundInitializer = useCallback(
@@ -32,6 +37,57 @@ const Crossword = (props) => {
     setCanvas(canvas);
   }, []);
 
+  const eraseCursor = (rc) => {
+    context.globalCompositeOperation = "destination-out";
+    const [x, y, w, h] = squares[rc[0]][rc[1]].c;
+    context.strokeRect(x, y, w, h);
+    context.globalCompositeOperation = "source-over";
+  };
+
+  const drawCursor = (rc) => {
+    const sq = squares[rc[0]][rc[1]];
+    const [x, y, w, h] = sq.c;
+    if (sq.t) {
+      context.strokeStyle = "rgb(255, 0, 0)";
+    } else {
+      context.strokeStyle = "rgb(0, 255, 0)";
+    }
+    context.strokeRect(x, y, w, h);
+    context.strokeStyle = "rgb(0, 0, 0)";
+  };
+
+  const prevCursorRC = useRef();
+  useEffect(() => {
+    if (!canvas || !context || readyState !== WebSocket.OPEN) {
+      return;
+    }
+
+    if (prevCursorRC.current) eraseCursor(prevCursorRC.current);
+    prevCursorRC.current = cursorRC;
+
+    drawCursor(cursorRC);
+  }, [cursorRC]);
+
+  useEffect(() => {
+    if (!canvas || !context || readyState !== WebSocket.OPEN) {
+      return;
+    }
+
+    const getSq = (r, c) => squares[r][c];
+    letters.forEach(({ l, r, c }) => {
+      const [x, y, w, h] = getSq(r, c).c; // squares[r][c].c;
+
+      context.globalCompositeOperation = "destination-out";
+      context.fillRect(x, y, w, h);
+      context.globalCompositeOperation = "source-over";
+
+      if (l) {
+        context.font = "48px serif";
+        context.fillText(l, x, y + h);
+      }
+    });
+  }, [letters]);
+
   useEffect(() => {
     if (!canvas || !context || readyState !== WebSocket.OPEN) {
       return;
@@ -47,13 +103,42 @@ const Crossword = (props) => {
     let isDrawing = false;
     let lastTo = [-1, -1];
 
-    const changeTool = (event) => {
+    const cursorKey = (key) => {
+      let newRC = [...cursorRC];
+
+      if (key === "ArrowDown" || key === "Down") {
+        newRC[0] += 1;
+      } else if (key === "ArrowUp" || key === "Up") {
+        newRC[0] -= 1;
+      } else if (key === "ArrowLeft" || key === "Left") {
+        newRC[1] -= 1;
+      } else if (key === "ArrowRight" || key === "Right") {
+        newRC[1] += 1;
+      } else {
+        return false;
+      }
+
+      setCursorRC(newRC);
+      return true;
+    };
+
+    const letterKey = (key) => {};
+
+    const handleKey = (event) => {
+      console.log(event.key);
       if (event.key === "e") {
         selectEraser();
         console.log("eraser selected");
       } else if (event.key === "b") {
         selectBrush();
         console.log("brush selected");
+      } else {
+        if (cursorKey(event.key)) return;
+
+        const newLetters = [...letters];
+        newLetters[coordGrid[cursorRC[0]][cursorRC[1]]].l = event.key;
+        setLetters(newLetters);
+        console.log(letters);
       }
     };
 
@@ -157,7 +242,7 @@ const Crossword = (props) => {
 
     onExternalDraw.current = handleExternalDrawing;
 
-    window.onkeyup = changeTool;
+    window.onkeyup = handleKey;
     canvas.onmousedown = startDrawing;
     canvas.onmousemove = draw;
     canvas.onmouseup = stopDrawing;
