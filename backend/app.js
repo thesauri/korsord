@@ -96,7 +96,7 @@ wss.on("connection", (ws) => {
         const drawingHistory = JSON.parse(drawingHistoryString);
         const payload = JSON.stringify({
           action: "DRAWING_HISTORY",
-          drawingHistory,
+          drawingHistory
         });
         ws.send(payload);
       });
