@@ -84,7 +84,11 @@ const Grid = (props) => {
       letterContext.globalCompositeOperation = "source-over";
 
       if (letter && !sq.t) {
-        letterContext.fillText(letter, x + w / 2, y + h - 5);
+        letterContext.fillText(
+          letter,
+          x + w / 2,
+          y + h - 0.14 * medianSquareSize
+        );
       }
     });
   }, [props.letters, letterContext, letterReady]);
