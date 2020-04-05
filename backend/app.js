@@ -8,7 +8,8 @@ const {
   addDrawEvent,
   getAllDrawEvents,
   addWriteEvent,
-  getLatestWriteEvents
+  getLatestWriteEvents,
+  closeDB
 } = require("./db");
 
 const app = express();
@@ -98,16 +99,8 @@ server.listen(process.env.SERVER_PORT || 8080, () =>
 );
 
 process.on("SIGINT", function () {
-  db.close((err) => {
-    if (err) {
-      console.error(err.message);
-    } else {
-      console.log("Close the database connection.");
-    }
-
-    process.exit();
-  });
   clearInterval(intervalTimeout);
+  closeDB().then(() => process.exit());
 
   setTimeout(() => process.exit(), 100);
 });
