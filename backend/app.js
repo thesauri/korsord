@@ -4,6 +4,8 @@ const WebSocket = require("ws");
 const express = require("express");
 const http = require("http");
 
+const apiRouter = require("./api");
+
 const {
   addDrawEvent,
   getAllDrawEvents,
@@ -15,6 +17,8 @@ const {
 
 const app = express();
 app.use("/", express.static("../frontend/build/"));
+app.use("/api", apiRouter);
+app.use("/uploads", express.static("uploads/"));
 app.use("*", express.static("../frontend/build/"));
 
 const server = http.createServer(app);
