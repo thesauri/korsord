@@ -59,9 +59,9 @@ const Grid = (props) => {
       return;
     }
     cursorContext.clearRect(0, 0, cursorCanvas.width, cursorCanvas.height);
-    if (props.showCursor) drawCursor(props.cursorRC);
+    if (props.showCursor) drawCursor(props.cursorPosition);
   }, [
-    props.cursorRC,
+    props.cursorPosition,
     props.showCursor,
     cursorCanvas,
     cursorContext,
@@ -75,16 +75,16 @@ const Grid = (props) => {
     }
 
     const getSq = (r, c) => squares[r][c];
-    props.letters.forEach(({ l, r, c }) => {
-      const sq = getSq(r, c);
-      const [x, y, w, h] = sq.c; // squares[r][c].c;
+    props.letters.forEach(({ letter, row, column }) => {
+      const sq = getSq(row, column); // squares[r][c].c;
+      const [x, y, w, h] = sq.c;
 
       letterContext.globalCompositeOperation = "destination-out";
       letterContext.fillRect(x, y, w, h);
       letterContext.globalCompositeOperation = "source-over";
 
-      if (l && !sq.t) {
-        letterContext.fillText(l, x + w / 2, y + h - 5);
+      if (letter && !sq.t) {
+        letterContext.fillText(letter, x + w / 2, y + h - 5);
       }
     });
   }, [props.letters, letterContext, letterReady]);

@@ -4,11 +4,11 @@ import { useState } from "react";
 
 import "./Crossword.css";
 import { useApi } from "./api";
-import { squares, createLetterArr, createCoordGrid } from "./squares";
+import { squares, createLetterArray, createCoordinateGrid } from "./squares";
 
 import Grid from "./Grid.jsx";
 
-const coordGrid = createCoordGrid();
+const coordGrid = createCoordinateGrid();
 
 const ERASERSIZE = 12;
 const BRUSHSIZE = 4;
@@ -24,10 +24,10 @@ const Crossword = (props) => {
     props.url
   );
 
-  const [mode, setMode] = useState(WRITE);
+  const [mode, setMode] = useState(DRAW);
 
-  const [cursorRC, setCursorRC] = useState([0, 0]);
-  const [letters, setLetters] = useState(createLetterArr());
+  const [cursorPosition, setCursorRC] = useState([0, 0]);
+  const [letters, setLetters] = useState(createLetterArray());
 
   const backgroundInitializer = useCallback(
     (backgroundCanvas) => {
@@ -50,25 +50,30 @@ const Crossword = (props) => {
 
   const cursorKey = useCallback(
     (key) => {
-      let [r, c] = cursorRC;
+      let [row, column] = cursorPosition;
 
       if (key === "ArrowDown" || key === "Down") {
-        r += 1;
+        row += 1;
       } else if (key === "ArrowUp" || key === "Up") {
-        r -= 1;
+        row -= 1;
       } else if (key === "ArrowLeft" || key === "Left") {
-        c -= 1;
+        column -= 1;
       } else if (key === "ArrowRight" || key === "Right") {
-        c += 1;
+        column += 1;
       } else {
         return false;
       }
 
-      if (r >= 0 && r < squares.length && c >= 0 && c < squares[r].length)
-        setCursorRC([r, c]);
+      if (
+        row >= 0 &&
+        row < squares.length &&
+        column >= 0 &&
+        column < squares[row].length
+      )
+        setCursorRC([row, column]);
       return true;
     },
-    [cursorRC]
+    [cursorPosition]
   );
 
   const escSwitchMode = (key) => {
@@ -83,14 +88,14 @@ const Crossword = (props) => {
   const letterKey = useCallback(
     (key) => {
       const updateAndSend = (newValue) => {
-        const [r, c] = cursorRC;
+        const [row, column] = cursorPosition;
         const newLetters = [...letters];
-        newLetters[coordGrid[r][c]].l = newValue;
+        newLetters[coordGrid[row][column]].letter = newValue;
         setLetters(newLetters);
 
         sendEvent({
           action: "WRITE_EVENT",
-          event: { l: newValue, r, c }
+          event: { letter: newValue, row, column }
         });
       };
 
@@ -108,7 +113,7 @@ const Crossword = (props) => {
 
       return false;
     },
-    [cursorRC, letters, sendEvent]
+    [cursorPosition, letters, sendEvent]
   );
 
   useEffect(() => {
@@ -246,8 +251,8 @@ const Crossword = (props) => {
 
     const handleExternalWrite = (writeHistory) => {
       const newLetters = [...letters];
-      writeHistory.forEach(({ l, r, c }, i) => {
-        newLetters[coordGrid[r][c]].l = l;
+      writeHistory.forEach(({ letter, row, column }, i) => {
+        newLetters[coordGrid[row][column]].letter = letter;
       });
       setLetters(newLetters);
     };
@@ -287,7 +292,11 @@ const Crossword = (props) => {
         ref={backgroundInitializer}
         className="crossword"
       ></canvas>
-      <Grid cursorRC={cursorRC} letters={letters} showCursor={mode === WRITE} />
+      <Grid
+        cursorPosition={cursorPosition}
+        letters={letters}
+        showCursor={mode === WRITE}
+      />
       <canvas
         width={1193}
         height={1664}

@@ -1,16 +1,16 @@
-export const createLetterArr = () => {
+export const createLetterArray = () => {
   const arr = [];
 
-  squares.forEach((row, r) => {
-    row.forEach((_, c) => {
-      arr.push({ l: "", r, c });
+  squares.forEach((rowArr, row) => {
+    rowArr.forEach((_, column) => {
+      arr.push({ letter: "", row, column });
     });
   });
 
   return arr;
 };
 
-export const createCoordGrid = () => {
+export const createCoordinateGrid = () => {
   const grid = [];
   let idx = 0;
   squares.forEach((row) => {
