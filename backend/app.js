@@ -1,6 +1,17 @@
+"use strict";
+
 const WebSocket = require("ws");
 const express = require("express");
 const http = require("http");
+
+const {
+  addDrawEvent,
+  getAllDrawEvents,
+  addWriteEvent,
+  getLatestWriteEvents,
+  closeDB,
+  db
+} = require("./db");
 
 const app = express();
 app.use("/", express.static("../frontend/build/"));
@@ -9,50 +20,7 @@ app.use("*", express.static("../frontend/build/"));
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-const sqlite3 = require("sqlite3").verbose();
-
-const db = new sqlite3.Database("./app.db", (err) => {
-  if (err) {
-    console.error(err.message);
-    process.exit();
-  }
-  console.log("Connected to the SQlite database.");
-});
-
-db.run(
-  "create table if not exists events (" +
-    "id integer primary key," +
-    "url text," +
-    "event text" +
-    ");",
-  (err) => {
-    if (err) console.log(err);
-  }
-);
-
-const addEvent = (url, event) => {
-  db.run(
-    "insert into events(url, event) values(?, ?);",
-    [url, event],
-    (err) => {
-      if (err) console.log(err);
-    }
-  );
-};
-
-const getAllEvents = (url, callback) => {
-  db.all(
-    "select event from events where url = ? order by id asc;",
-    url,
-    (err, rows) => {
-      if (err) console.log(err);
-      const rowsString = "[" + rows.map((r) => r.event).join(",") + "]";
-      callback(rowsString);
-    }
-  );
-};
-
-clients = {};
+const clients = {};
 
 wss.on("connection", (ws) => {
   ws.on("message", (msgString) => {
@@ -69,7 +37,7 @@ wss.on("connection", (ws) => {
       if (clients[url] === undefined) {
         clients[url] = [];
       }
-      clients[url].push(ws);
+      clients[url].push({ ws: ws, writeIdx: -1 });
       return;
     }
 
@@ -78,27 +46,66 @@ wss.on("connection", (ws) => {
       return;
     }
 
-    if (clients[url].find((w) => w === ws) === undefined) {
+    if (clients[url].find((c) => c.ws === ws) === undefined) {
       console.error("Drawing action to incorrect url");
       return;
     }
 
     if (event.action === "DRAWING_EVENTS") {
-      addEvent(url, JSON.stringify(event));
+      addDrawEvent(url, JSON.stringify(event));
 
-      clients[url].forEach((client) => {
+      clients[url].forEach((obj) => {
+        const client = obj.ws;
         if (client !== ws && client.readyState === WebSocket.OPEN) {
           client.send(JSON.stringify(event));
         }
       });
-    } else if (event.action === "REQUEST_DRAWING_HISTORY") {
-      getAllEvents(url, (drawingHistoryString) => {
+    } else if (event.action === "REQUEST_HISTORY") {
+      getAllDrawEvents(url, (drawingHistoryString) => {
         const drawingHistory = JSON.parse(drawingHistoryString);
-        const payload = JSON.stringify({
-          action: "DRAWING_HISTORY",
-          drawingHistory
+        ws.send(
+          JSON.stringify({
+            action: "DRAWING_HISTORY",
+            drawingHistory
+          })
+        );
+      });
+
+      getLatestWriteEvents(url, -1, (rows) => {
+        if (rows.length > 0) {
+          const latestId = rows[rows.length - 1].id;
+
+          const currentClient = clients[url].find((client) => client.ws === ws);
+          currentClient.writeIdx = latestId;
+
+          const payload = JSON.stringify({
+            action: "WRITE_HISTORY",
+            writeHistory: rows.map((row) => JSON.parse(row.event))
+          });
+          ws.send(payload);
+        }
+      });
+    } else if (event.action === "WRITE_EVENT") {
+      db.serialize(() => {
+        addWriteEvent(url, JSON.stringify(event.event));
+
+        Object.keys(clients).forEach((url) => {
+          const urlClients = clients[url];
+          urlClients.forEach(({ ws, writeIdx }, i) => {
+            getLatestWriteEvents(url, writeIdx, (rows) => {
+              if (rows.length > 0) {
+                const latestId = rows[rows.length - 1].id;
+                clients[url][i].writeIdx = latestId;
+
+                const payload = JSON.stringify({
+                  action: "WRITE_HISTORY",
+                  writeHistory: rows.map((row) => JSON.parse(row.event))
+                });
+                ws.send(payload);
+              }
+            });
+          });
         });
-        ws.send(payload);
       });
     }
   });
@@ -109,15 +116,8 @@ server.listen(process.env.SERVER_PORT || 8080, () =>
 );
 
 process.on("SIGINT", function () {
-  db.close((err) => {
-    if (err) {
-      console.error(err.message);
-    } else {
-      console.log("Close the database connection.");
-    }
-
-    process.exit();
-  });
+  clearInterval(intervalTimeout);
+  closeDB().then(() => process.exit());
 
   setTimeout(() => process.exit(), 100);
 });

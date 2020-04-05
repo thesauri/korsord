@@ -6,6 +6,9 @@ export const useApi = (url) => {
   const onExternalDraw = useRef(() => {
     console.error("No draw function set");
   });
+  const onExternalWrite = useRef(() => {
+    console.error("No write function set");
+  });
   const [readyState, setReadyState] = useState("CONNECTING");
 
   useEffect(() => {
@@ -22,11 +25,11 @@ export const useApi = (url) => {
       socket.current.send(payload);
     };
 
-    const requestDrawingHistory = () => {
+    const requestHistory = () => {
       const payload = JSON.stringify({
         url,
         event: {
-          action: "REQUEST_DRAWING_HISTORY"
+          action: "REQUEST_HISTORY"
         }
       });
       socket.current.send(payload);
@@ -35,7 +38,7 @@ export const useApi = (url) => {
     socket.current.addEventListener("open", () => {
       setReadyState(socket.current.readyState);
       sendURL();
-      requestDrawingHistory();
+      requestHistory();
     });
 
     socket.current.addEventListener("close", () => {
@@ -50,6 +53,8 @@ export const useApi = (url) => {
         event.drawingHistory.forEach((event) => {
           onExternalDraw.current(event.drawingEvents);
         });
+      } else if (event.action === "WRITE_HISTORY") {
+        onExternalWrite.current(event.writeHistory);
       }
     });
   }, [url]);
@@ -66,5 +71,5 @@ export const useApi = (url) => {
     socket.current.send(payload);
   };
 
-  return [readyState, onExternalDraw, sendEvent];
+  return [readyState, onExternalDraw, onExternalWrite, sendEvent];
 };
