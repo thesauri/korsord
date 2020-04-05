@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import CrosswordSelector from "./CrosswordSelector";
 import "./Home.css";
 
 // prettier-ignore
@@ -18,6 +19,7 @@ const Home = () => {
       <Link to={link} className="home-new-game">
         Starta ett nytt korsord
       </Link>
+      <CrosswordSelector />
       <p className="home-divider">eller</p>
       <p>
         Be en kompis skicka en länk till sitt korsord och öppna den i din
