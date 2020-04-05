@@ -25,11 +25,11 @@ export const useApi = (url) => {
       socket.current.send(payload);
     };
 
-    const requestDrawingHistory = () => {
+    const requestHistory = () => {
       const payload = JSON.stringify({
         url,
         event: {
-          action: "REQUEST_DRAWING_HISTORY"
+          action: "REQUEST_HISTORY"
         }
       });
       socket.current.send(payload);
@@ -38,7 +38,7 @@ export const useApi = (url) => {
     socket.current.addEventListener("open", () => {
       setReadyState(socket.current.readyState);
       sendURL();
-      requestDrawingHistory();
+      requestHistory();
     });
 
     socket.current.addEventListener("close", () => {

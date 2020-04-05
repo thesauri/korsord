@@ -8,6 +8,7 @@ const db = new sqlite3.Database("./app.db", (err) => {
   }
   console.log("Connected to the SQlite database.");
 });
+exports.db = db;
 
 exports.closeDB = () => {
   return new Promise((resolve, _) => {

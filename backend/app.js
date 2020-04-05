@@ -9,7 +9,8 @@ const {
   getAllDrawEvents,
   addWriteEvent,
   getLatestWriteEvents,
-  closeDB
+  closeDB,
+  db
 } = require("./db");
 
 const app = express();
@@ -59,29 +60,23 @@ wss.on("connection", (ws) => {
           client.send(JSON.stringify(event));
         }
       });
-    } else if (event.action === "REQUEST_DRAWING_HISTORY") {
+    } else if (event.action === "REQUEST_HISTORY") {
       getAllDrawEvents(url, (drawingHistoryString) => {
         const drawingHistory = JSON.parse(drawingHistoryString);
-        const payload = JSON.stringify({
-          action: "DRAWING_HISTORY",
-          drawingHistory
-        });
-        ws.send(payload);
+        ws.send(
+          JSON.stringify({
+            action: "DRAWING_HISTORY",
+            drawingHistory
+          })
+        );
       });
-    } else if (event.action === "WRITE_EVENT") {
-      addWriteEvent(url, JSON.stringify(event.event));
-    }
-  });
-});
 
-const intervalTimeout = setInterval(() => {
-  Object.keys(clients).forEach((url) => {
-    const urlClients = clients[url];
-    urlClients.forEach(({ ws, writeIdx }, i) => {
-      getLatestWriteEvents(url, writeIdx, (rows) => {
+      getLatestWriteEvents(url, -1, (rows) => {
         if (rows.length > 0) {
           const latestId = rows[rows.length - 1].id;
-          clients[url][i].writeIdx = latestId;
+
+          const currentClient = clients[url].find((client) => client.ws === ws);
+          currentClient.writeIdx = latestId;
 
           const payload = JSON.stringify({
             action: "WRITE_HISTORY",
@@ -90,9 +85,31 @@ const intervalTimeout = setInterval(() => {
           ws.send(payload);
         }
       });
-    });
+    } else if (event.action === "WRITE_EVENT") {
+      db.serialize(() => {
+        addWriteEvent(url, JSON.stringify(event.event));
+
+        Object.keys(clients).forEach((url) => {
+          const urlClients = clients[url];
+          urlClients.forEach(({ ws, writeIdx }, i) => {
+            getLatestWriteEvents(url, writeIdx, (rows) => {
+              if (rows.length > 0) {
+                const latestId = rows[rows.length - 1].id;
+                clients[url][i].writeIdx = latestId;
+
+                const payload = JSON.stringify({
+                  action: "WRITE_HISTORY",
+                  writeHistory: rows.map((row) => JSON.parse(row.event))
+                });
+                ws.send(payload);
+              }
+            });
+          });
+        });
+      });
+    }
   });
-}, 500);
+});
 
 server.listen(process.env.SERVER_PORT || 8080, () =>
   console.log(`Server started on port ${server.address().port}`)
