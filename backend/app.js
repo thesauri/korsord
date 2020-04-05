@@ -19,31 +19,46 @@ const db = new sqlite3.Database("./app.db", (err) => {
   console.log("Connected to the SQlite database.");
 });
 
-db.run(
-  "create table if not exists events (" +
-    "id integer primary key," +
-    "url text," +
-    "event text" +
-    ");",
-  (err) => {
-    if (err) console.log(err);
-  }
-);
+db.serialize(() => {
+  db.run(
+    "create table if not exists eventTypes(" +
+      "typeId integer primary key," +
+      "type text unique not null" +
+      ");",
+    (err) => {
+      if (err) console.error(err);
+    }
+  );
+  db.run(
+    "insert or ignore into eventTypes(typeId, type) values (0, 'DRAW');",
+    (err) => {
+      if (err) console.error(err);
+    }
+  );
+  db.run(
+    "insert or ignore into eventTypes(typeId, type) values (1, 'WRITE');",
+    (err) => {
+      if (err) console.error(err);
+    }
+  );
 
-db.run(
-  "create table if not exists writeEvents (" +
-    "id integer primary key," +
-    "url text," +
-    "event text" +
-    ");",
-  (err) => {
-    if (err) console.log(err);
-  }
-);
+  db.run(
+    "create table if not exists events (" +
+      "id integer primary key," +
+      "url text," +
+      "eventType int," +
+      "event text," +
+      "foreign key(eventType) references eventTypes(typeId)" +
+      ");",
+    (err) => {
+      if (err) console.error(err);
+    }
+  );
+});
 
 const addDrawEvent = (url, event) => {
   db.run(
-    "insert into events(url, event) values(?, ?);",
+    "insert into events(url, event, eventType) values(?, ?, 0);",
     [url, event],
     (err) => {
       if (err) console.log(err);
@@ -53,7 +68,7 @@ const addDrawEvent = (url, event) => {
 
 const getAllDrawEvents = (url, callback) => {
   db.all(
-    "select event from events where url = ? order by id asc;",
+    "select event from events where url = ? and eventType = 0 order by id asc;",
     url,
     (err, rows) => {
       if (err) console.log(err);
@@ -65,7 +80,7 @@ const getAllDrawEvents = (url, callback) => {
 
 const addWriteEvent = (url, event) => {
   db.run(
-    "insert into writeEvents(url, event) values(?, ?);",
+    "insert into events(url, event, eventType) values(?, ?, 1);",
     [url, event],
     (err) => {
       if (err) console.log(err);
@@ -75,7 +90,7 @@ const addWriteEvent = (url, event) => {
 
 const getLatestWriteEvents = (url, writeIdx, callback) => {
   db.all(
-    "select id, event from writeEvents where url = ? and id > ? order by id asc;",
+    "select id, event from events where url = ? and id > ? and eventType = 1 order by id asc;",
     [url, writeIdx],
     (err, rows) => {
       if (err) console.log(err);
@@ -157,7 +172,7 @@ const intervalTimeout = setInterval(() => {
       });
     });
   });
-}, 2000);
+}, 500);
 
 server.listen(process.env.SERVER_PORT || 8080, () =>
   console.log(`Server started on port ${server.address().port}`)
