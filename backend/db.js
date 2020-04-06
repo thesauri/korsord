@@ -113,3 +113,14 @@ exports.getCrosswords = (callback) => {
     }
   );
 };
+
+exports.addGame = (url, crosswordId, callback) => {
+  db.run(
+    "insert or ignore into games(url, crossword) values (?, ?);",
+    [url, crosswordId],
+    (err, rows) => {
+      if (err) console.log(err);
+      callback(err, rows);
+    }
+  );
+};

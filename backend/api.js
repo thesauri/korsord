@@ -1,7 +1,7 @@
 "use strict";
 const router = require("express").Router();
 const jsonParser = require("express").json();
-const { getCrosswords } = require("./db");
+const { addGame, getCrosswords } = require("./db");
 
 const enableCORS = (res) => {
   // TODO: Update the origin list once we use the API for something important
@@ -55,12 +55,21 @@ router.get("/game/:gameId", (req, res) => {
 
 router.post("/game", (req, res) => {
   const { crosswordId } = req.body;
-  const response = {
-    gameId: generateGameId(),
-    crosswordId: crosswordId
-  };
-  res.contentType = "application/json";
-  res.send(JSON.stringify(response));
+  const gameId = generateGameId();
+  addGame(gameId, crosswordId, (err, rows) => {
+    if (err) {
+      res.status = 400;
+      res.send("Game creation failed");
+      return;
+    }
+    const response = {
+      gameId,
+      crosswordId: crosswordId
+    };
+    res.contentType = "application/json";
+    res.send(JSON.stringify(response));
+    console.log(`Created game ${gameId} for crossword ${crosswordId}`);
+  });
 });
 
 module.exports = router;
