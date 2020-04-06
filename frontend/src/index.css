@@ -1,7 +1,7 @@
 :root {
   --primary: rgb(178, 7, 56);
   --light-gray: rgb(230, 230, 230);
-  --dark-gray: rgb(120, 120, 120);
+  --dark-gray: rgb(100, 100, 100);
 }
 
 body {
