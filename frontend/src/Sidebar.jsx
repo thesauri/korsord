@@ -16,11 +16,11 @@ const Sidebar = () => {
                     Penna (B)
                 </p>
                 <p>
-                    <i className="fas fa-eraser" style={{ color: 'black' }}></i>
+                    <i className="fas fa-eraser"></i>
                     Suddgummi (E)
                 </p>
                 <p>
-                    <i className="fas fa-text" style={{ color: 'black' }}></i>
+                    <i className="fas fa-font"></i>
                     Text (T)
                 </p>
             </div> 
@@ -44,7 +44,7 @@ const Sidebar = () => {
             </div>
         </div>
         <div className="sidebar-section link">
-            <h3>Hjälp<i className="fas fa-pen"></i></h3>
+        <h3>Hjälp</h3>
         </div>
       </div>
     );

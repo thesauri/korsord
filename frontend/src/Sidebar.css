@@ -48,7 +48,7 @@ h3 {
     background-color: rgb(240, 240, 240);
 }
 
-.section-list > p > i {
+i {
     margin-right: 10px;
 }
 
@@ -56,6 +56,10 @@ h3 {
     color: var(--primary) !important;
     background-color: white;
     border-right: 5px solid var(--primary);
+}
+
+.active > i {
+    color: var(--primary) !important; 
 }
 
 .link:hover {
