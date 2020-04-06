@@ -50,6 +50,22 @@ const generateGameId = () => {
   return gameId;
 };
 
+router.get("/game/:gameId", (req, res) => {
+  const { gameId } = req.params.gameId;
+  const response = {
+    gameId,
+    crossword: {
+      crosswordId: 2,
+      newspaper: "HBL",
+      date: "2020-04-03",
+      image_url: "uploads/2020-04-03/crossword.jpg",
+      metadata_url: "uploads/2020-04-04/squares.json"
+    }
+  };
+  res.contentType = "appliction/json";
+  res.send(JSON.stringify(response));
+});
+
 router.post("/game", (req, res) => {
   const { crosswordId } = req.body;
   const response = {
