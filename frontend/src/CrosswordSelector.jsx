@@ -25,7 +25,7 @@ const CrosswordSelector = () => {
   return (
     <div className="crosswordselector">
       {crosswords.map((crossword) => (
-        <a
+        <button
           className="crosswordselector-card"
           key={crossword.crosswordId}
           onClick={() => onNewGame(crossword.crosswordId)}
@@ -41,7 +41,7 @@ const CrosswordSelector = () => {
                   crossword.publishedDate
                 ).format("DD.MM.YYYY")}`}
           </p>
-        </a>
+        </button>
       ))}
     </div>
   );

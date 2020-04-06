@@ -1,9 +1,10 @@
 .crosswordselector {
   width: 100%;
   max-width: 1024px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  column-gap: 48px;
+  row-gap: 48px;
 }
 .crosswordselector-card {
   width: 300px;
@@ -16,6 +17,8 @@
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   cursor: pointer;
   margin: 0 48px 0 0;
+  background: none;
+  border: none;
 }
 
 .crosswordselector-card:hover {
