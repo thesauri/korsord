@@ -6,9 +6,17 @@ import { useHistory } from "react-router-dom";
 import { getAllCrosswords, createNewGame } from "./restApi";
 
 const CrosswordSelector = () => {
-  const crosswords = useCrosswords();
+  const [crosswords, setCrosswords] = useState([]);
   const [selectedCrossword, setSelectedCrossword] = useState(null);
   const history = useHistory();
+
+  useEffect(() => {
+    const fetchAndUpdateCrosswords = async () => {
+      const crosswords = await getAllCrosswords();
+      setCrosswords(crosswords);
+    };
+    fetchAndUpdateCrosswords();
+  }, []);
 
   const onNewGame = (crosswordId) => {
     if (selectedCrossword !== null) {
@@ -45,21 +53,6 @@ const CrosswordSelector = () => {
       ))}
     </div>
   );
-};
-
-const useCrosswords = () => {
-  const [crosswords, setCrosswords] = useState([]);
-
-  const fetchAndUpdateCrosswords = async () => {
-    const crosswords = await getAllCrosswords();
-    setCrosswords(crosswords);
-  };
-
-  useEffect(() => {
-    fetchAndUpdateCrosswords();
-  }, []);
-
-  return crosswords;
 };
 
 export default CrosswordSelector;
