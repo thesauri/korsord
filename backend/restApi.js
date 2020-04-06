@@ -44,7 +44,7 @@ router.post("/crossword", (req, res) => {
       return;
     }
     const message = `Crossword ${crossword.newspaper} added`;
-    console.log(`Crossword ${crossword.newspaper} added`);
+    console.log(message);
     res.send(message);
   });
 });
