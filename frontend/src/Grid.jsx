@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback, useState } from "react";
+import "./Crossword.css";
 
 const Grid = (props) => {
   const [letterCanvas, setLetterCanvas] = useState(null);
@@ -99,7 +100,7 @@ const Grid = (props) => {
   }, [props.letters, letterContext, letterReady, letterCanvas]);
 
   return (
-    <div>
+    <div className="crossword">
       <canvas
         width={props.width}
         height={props.height}

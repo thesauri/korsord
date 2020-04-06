@@ -312,6 +312,7 @@ const Crossword = (props) => {
           squares={props.metadata.squares}
           width={props.image.width}
           height={props.image.height}
+          className="crossword"
         />
       )}
       <canvas
