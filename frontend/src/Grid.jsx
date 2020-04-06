@@ -96,14 +96,14 @@ const Grid = (props) => {
   return (
     <div>
       <canvas
-        width={1193}
-        height={1664}
+        width={props.width}
+        height={props.height}
         ref={letterCanvasInitializer}
         className="crossword"
       ></canvas>
       <canvas
-        width={1193}
-        height={1664}
+        width={props.width}
+        height={props.height}
         ref={cursorCanvasInitializer}
         className="crossword"
       ></canvas>

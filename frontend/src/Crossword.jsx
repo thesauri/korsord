@@ -291,8 +291,8 @@ const Crossword = (props) => {
   return (
     <div>
       <canvas
-        width={1193}
-        height={1664}
+        width={props.image.width}
+        height={props.image.height}
         ref={backgroundInitializer}
         className="crossword"
       ></canvas>
@@ -300,10 +300,12 @@ const Crossword = (props) => {
         cursorPosition={cursorPosition}
         letters={letters}
         showCursor={mode === WRITE}
+        width={props.image.width}
+        height={props.image.height}
       />
       <canvas
-        width={1193}
-        height={1664}
+        width={props.image.width}
+        height={props.image.height}
         ref={canvasInitializer}
         className="crossword"
       ></canvas>
