@@ -9,21 +9,11 @@ const {
   getGame
 } = require("./db");
 
-const enableCORS = (res) => {
-  // TODO: Update the origin list once we use the API for something important
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-};
-
 const logEvent = (req) => {
   console.log(`${new Date().toISOString()}, ${req.method}, ${req.path}`);
 };
 
 router.use((req, res, next) => {
-  enableCORS(res);
   logEvent(req);
   next();
 });

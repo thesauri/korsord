@@ -4,11 +4,8 @@ import { useState } from "react";
 
 import "./Crossword.css";
 import { useWsApi } from "./wsApi";
-import { squares, createLetterArray, createCoordinateGrid } from "./squares";
 
-import Grid from "./Grid.jsx";
-
-const coordGrid = createCoordinateGrid();
+import Grid, { createLetterArray, createCoordinateGrid } from "./Grid.jsx";
 
 const ERASERSIZE = 4;
 const BRUSHSIZE = 1;
@@ -26,8 +23,17 @@ const Crossword = (props) => {
 
   const [mode, setMode] = useState(DRAW);
 
-  const [cursorPosition, setCursorRC] = useState([0, 0]);
-  const [letters, setLetters] = useState(createLetterArray());
+  const [cursorPosition, setCursorPosition] = useState(null);
+  const [squares, setSquares] = useState(null);
+  const [coordGrid, setCoordGrid] = useState(null);
+  const [letters, setLetters] = useState(null); //createLetterArray());
+
+  useEffect(() => {
+    setCursorPosition([0, 0]);
+    setSquares(props.metadata.squares);
+    setCoordGrid(createCoordinateGrid(props.metadata.squares.grid));
+    setLetters(createLetterArray(props.metadata.squares.grid));
+  }, [props.metadata.squares]);
 
   const backgroundInitializer = useCallback(
     (backgroundCanvas) => {
@@ -66,11 +72,11 @@ const Crossword = (props) => {
 
       if (
         row >= 0 &&
-        row < squares.length &&
+        row < props.metadata.squares.grid.length &&
         column >= 0 &&
-        column < squares[row].length
+        column < props.metadata.squares.grid[row].length
       )
-        setCursorRC([row, column]);
+        setCursorPosition([row, column]);
       return true;
     },
     [cursorPosition]
@@ -297,13 +303,16 @@ const Crossword = (props) => {
         ref={backgroundInitializer}
         className="crossword"
       ></canvas>
+      (cursorPosition && squares && coordGrid && letters &&
       <Grid
         cursorPosition={cursorPosition}
         letters={letters}
         showCursor={mode === WRITE}
+        squares={props.metadata.squares}
         width={props.image.width}
         height={props.image.height}
       />
+      )
       <canvas
         width={props.image.width}
         height={props.image.height}

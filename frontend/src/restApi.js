@@ -25,3 +25,8 @@ export const getCrosswordForGame = async (gameId) => {
   const { crossword } = await response.json();
   return crossword;
 };
+
+export const getMetadata = async (metadataUrl) => {
+  const response = await fetch(`${config.BACKEND_URL}/${metadataUrl}`);
+  return await response.json();
+};

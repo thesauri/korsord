@@ -1,5 +1,4 @@
 import React, { useEffect, useCallback, useState } from "react";
-import { squares, medianSquareSize } from "./squares";
 
 const Grid = (props) => {
   const [letterCanvas, setLetterCanvas] = useState(null);
@@ -13,7 +12,7 @@ const Grid = (props) => {
     }
 
     const letterContext = canvas.getContext("2d");
-    letterContext.font = `bold ${medianSquareSize}px sans`;
+    letterContext.font = `bold ${props.squares.medianLen}px sans`;
     letterContext.textAlign = "center";
 
     setLetterContext(letterContext);
@@ -41,7 +40,7 @@ const Grid = (props) => {
 
   const drawCursor = useCallback(
     (rc) => {
-      const sq = squares[rc[0]][rc[1]];
+      const sq = props.squares.grid[rc[0]][rc[1]];
       const [x, y, w, h] = sq.c;
       if (sq.t) {
         cursorContext.strokeStyle = "rgb(255, 0, 0)";
@@ -74,9 +73,9 @@ const Grid = (props) => {
       return;
     }
 
-    const getSq = (r, c) => squares[r][c];
+    const getSq = (r, c) => props.squares.grid[r][c];
     props.letters.forEach(({ letter, row, column }) => {
-      const sq = getSq(row, column); // squares[r][c].c;
+      const sq = getSq(row, column);
       const [x, y, w, h] = sq.c;
 
       letterContext.globalCompositeOperation = "destination-out";
@@ -87,7 +86,7 @@ const Grid = (props) => {
         letterContext.fillText(
           letter,
           x + w / 2,
-          y + h - 0.14 * medianSquareSize
+          y + h - 0.14 * props.squares.medianLen
         );
       }
     });
@@ -112,3 +111,28 @@ const Grid = (props) => {
 };
 
 export default Grid;
+
+export const createCoordinateGrid = (squares) => {
+  const grid = [];
+  let idx = 0;
+  squares.forEach((row) => {
+    grid.push([]);
+    row.forEach((_) => {
+      grid[grid.length - 1].push(idx);
+      idx += 1;
+    });
+  });
+  return grid;
+};
+
+export const createLetterArray = (squares) => {
+  const arr = [];
+
+  squares.forEach((rowArr, row) => {
+    rowArr.forEach((_, column) => {
+      arr.push({ letter: "", row, column });
+    });
+  });
+
+  return arr;
+};

@@ -8,8 +8,8 @@ create table if not exists crosswords(
     metadataUrl text not null
 );
 
-insert into crosswords(newspaper, publishedDate, imageUrl, metadataUrl) values ('HBL', '2020-03-27', 'uploads/2020-03-27/crossword.jpg', 'uploads/2020-03-27/squares.json');
-insert into crosswords(newspaper, publishedDate, imageUrl, metadataUrl) values ('HBL', '2020-04-03', 'uploads/2020-04-03/crossword.jpg', 'uploads/2020-04-03/squares.json');
+insert into crosswords(newspaper, publishedDate, imageUrl, metadataUrl) values ('HBL', '2020-03-27', 'uploads/2020-03-27/crossword.jpg', 'uploads/2020-03-27/metadata.json');
+insert into crosswords(newspaper, publishedDate, imageUrl, metadataUrl) values ('HBL', '2020-04-03', 'uploads/2020-04-03/crossword.jpg', 'uploads/2020-04-03/metadata.json');
 
 create table if not exists games(
     url text primary key,

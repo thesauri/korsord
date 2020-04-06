@@ -15,7 +15,22 @@ const {
   db
 } = require("./db");
 
+const enableCORS = (res) => {
+  // TODO: Update the origin list once we use the API for something important
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+};
+
 const app = express();
+
+app.use((req, res, next) => {
+  enableCORS(res);
+  next();
+});
+
 app.use("/", express.static("../frontend/build/"));
 app.use("/api", restApiRouter);
 app.use("/uploads", express.static("uploads/"));
