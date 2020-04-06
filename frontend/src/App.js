@@ -3,6 +3,7 @@ import Crossword from "./Crossword";
 import "./App.css";
 import { useParams } from "react-router-dom";
 import { config } from "./Constants";
+import { getCrosswordForGame } from "./restApi";
 
 function App() {
   const [crosswordImage, setCrosswordImage] = useState(null);
@@ -10,7 +11,7 @@ function App() {
 
   useEffect(() => {
     const getGameAndImage = async () => {
-      const crossword = await getGame(url);
+      const crossword = await getCrosswordForGame(url);
       const crosswordImage = new Image();
       crosswordImage.src = `${config.BACKEND_URL}/${crossword.imageUrl}`;
       crosswordImage.onload = () => {
@@ -26,11 +27,5 @@ function App() {
     </div>
   );
 }
-
-const getGame = async (gameId) => {
-  const response = await fetch(`${config.BACKEND_URL}/api/game/${gameId}`);
-  const { crossword } = await response.json();
-  return crossword;
-};
 
 export default App;

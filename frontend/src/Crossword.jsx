@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import { useState } from "react";
 
 import "./Crossword.css";
-import { useApi } from "./api";
+import { useWsApi } from "./wsApi";
 import { squares, createLetterArray, createCoordinateGrid } from "./squares";
 
 import Grid from "./Grid.jsx";
@@ -20,7 +20,7 @@ const Crossword = (props) => {
   const [canvas, setCanvas] = useState(null);
   const [context, setContext] = useState(null);
 
-  const [readyState, onExternalDraw, onExternalWrite, sendEvent] = useApi(
+  const [readyState, onExternalDraw, onExternalWrite, sendEvent] = useWsApi(
     props.url
   );
 

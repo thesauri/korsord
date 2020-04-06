@@ -4,7 +4,7 @@ const WebSocket = require("ws");
 const express = require("express");
 const http = require("http");
 
-const apiRouter = require("./api");
+const restApiRouter = require("./restApi");
 
 const {
   addDrawEvent,
@@ -17,7 +17,7 @@ const {
 
 const app = express();
 app.use("/", express.static("../frontend/build/"));
-app.use("/api", apiRouter);
+app.use("/api", restApiRouter);
 app.use("/uploads", express.static("uploads/"));
 app.use("*", express.static("../frontend/build/"));
 

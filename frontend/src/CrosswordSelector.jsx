@@ -3,6 +3,7 @@ import moment from "moment";
 import { config } from "./Constants";
 import "./CrosswordSelector.css";
 import { useHistory } from "react-router-dom";
+import { getAllCrosswords, createNewGame } from "./restApi";
 
 const CrosswordSelector = () => {
   const crosswords = useCrosswords();
@@ -50,9 +51,7 @@ const useCrosswords = () => {
   const [crosswords, setCrosswords] = useState([]);
 
   const fetchAndUpdateCrosswords = async () => {
-    const crosswords = await (
-      await fetch(`${config.BACKEND_URL}/api/crosswords`)
-    ).json();
+    const crosswords = await getAllCrosswords();
     setCrosswords(crosswords);
   };
 
@@ -61,21 +60,6 @@ const useCrosswords = () => {
   }, []);
 
   return crosswords;
-};
-
-const createNewGame = async (crosswordId) => {
-  const requestBody = JSON.stringify({
-    crosswordId
-  });
-  const response = await fetch(`${config.BACKEND_URL}/api/game`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: requestBody
-  });
-  const responseData = await response.json();
-  return responseData;
 };
 
 export default CrosswordSelector;

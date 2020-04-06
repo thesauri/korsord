@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { config } from "./Constants";
 
-export const useApi = (url) => {
+export const useWsApi = (url) => {
   const socket = useRef(null);
   const onExternalDraw = useRef(() => {
     console.error("No draw function set");
