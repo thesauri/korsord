@@ -7,6 +7,7 @@ import { useApi } from "./api";
 import { squares, createLetterArray, createCoordinateGrid } from "./squares";
 
 import Grid from "./Grid.jsx";
+import Sidebar from "./Sidebar.jsx"
 
 const coordGrid = createCoordinateGrid();
 
@@ -290,6 +291,7 @@ const Crossword = (props) => {
 
   return (
     <div>
+      
       <canvas
         width={1193}
         height={1664}
@@ -307,6 +309,7 @@ const Crossword = (props) => {
         ref={canvasInitializer}
         className="crossword"
       ></canvas>
+      <Sidebar />
     </div>
   );
 };
