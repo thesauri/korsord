@@ -12,8 +12,13 @@ const enableCORS = (res) => {
   );
 };
 
+const logEvent = (req) => {
+  console.log(`${new Date().toISOString()}, ${req.method}, ${req.path}`);
+};
+
 router.use((req, res, next) => {
   enableCORS(res);
+  logEvent(req);
   next();
 });
 
