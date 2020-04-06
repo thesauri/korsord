@@ -1,7 +1,7 @@
 "use strict";
 const router = require("express").Router();
 const jsonParser = require("express").json();
-const { addGame, getCrosswords } = require("./db");
+const { addGame, getCrossword, getCrosswords, getGame } = require("./db");
 
 const enableCORS = (res) => {
   // TODO: Update the origin list once we use the API for something important
@@ -38,19 +38,25 @@ const generateGameId = () => {
 };
 
 router.get("/game/:gameId", (req, res) => {
-  const { gameId } = req.params.gameId;
-  const response = {
-    gameId,
-    crossword: {
-      crosswordId: 2,
-      newspaper: "HBL",
-      date: "2020-04-03",
-      image_url: "uploads/2020-04-03/crossword.jpg",
-      metadata_url: "uploads/2020-04-04/squares.json"
+  const { gameId } = req.params;
+  getGame(gameId, (err, rows) => {
+    if (err || rows.length === 0) {
+      console.error(`GET /game: Unable to find game ${gameId}`);
+      res.status = 400;
+      res.send("Unable to find game");
+      return;
     }
-  };
-  res.contentType = "appliction/json";
-  res.send(JSON.stringify(response));
+    const crosswordId = rows[0].crossword;
+    getCrossword(crosswordId, (rows) => {
+      const crossword = rows[0];
+      const response = {
+        gameId,
+        crossword
+      };
+      res.contentType = "appliction/json";
+      res.send(JSON.stringify(response));
+    });
+  });
 });
 
 router.post("/game", (req, res) => {

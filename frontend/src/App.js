@@ -12,7 +12,7 @@ function App() {
     const getGameAndImage = async () => {
       const crossword = await getGame(url);
       const crosswordImage = new Image();
-      crosswordImage.src = `${config.BACKEND_URL}/${crossword["image_url"]}`;
+      crosswordImage.src = `${config.BACKEND_URL}/${crossword.imageUrl}`;
       crosswordImage.onload = () => {
         setCrosswordImage(crosswordImage);
       };
