@@ -41,7 +41,10 @@ const Grid = (props) => {
   const drawCursor = useCallback(
     (rc) => {
       const sq = props.squares.grid[rc[0]][rc[1]];
-      const [x, y, w, h] = sq.c;
+      let [x, y, w, h] = sq.c;
+      const rect = cursorCanvas.getBoundingClientRect();
+      x = x - rect.left;
+      y = y - rect.top;
       if (sq.t) {
         cursorContext.strokeStyle = "rgb(255, 0, 0)";
       } else {
@@ -50,7 +53,7 @@ const Grid = (props) => {
       cursorContext.strokeRect(x, y, w, h);
       cursorContext.strokeStyle = "rgb(0, 0, 0)";
     },
-    [cursorContext]
+    [cursorContext, cursorCanvas]
   );
 
   useEffect(() => {
@@ -76,7 +79,10 @@ const Grid = (props) => {
     const getSq = (r, c) => props.squares.grid[r][c];
     props.letters.forEach(({ letter, row, column }) => {
       const sq = getSq(row, column);
-      const [x, y, w, h] = sq.c;
+      let [x, y, w, h] = sq.c;
+      const rect = letterCanvas.getBoundingClientRect();
+      x = x - rect.left;
+      y = y - rect.top;
 
       letterContext.globalCompositeOperation = "destination-out";
       letterContext.fillRect(x, y, w, h);
@@ -90,7 +96,7 @@ const Grid = (props) => {
         );
       }
     });
-  }, [props.letters, letterContext, letterReady]);
+  }, [props.letters, letterContext, letterReady, letterCanvas]);
 
   return (
     <div>

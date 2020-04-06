@@ -169,6 +169,7 @@ const Crossword = (props) => {
 
     const startDrawing = (event) => {
       const [x, y] = getMouseLocation(event);
+      console.log(`D: ${x} ${y}`);
       context.moveTo(x, y);
       lastTo = [x, y];
       context.beginPath();
@@ -303,16 +304,16 @@ const Crossword = (props) => {
         ref={backgroundInitializer}
         className="crossword"
       ></canvas>
-      (cursorPosition && squares && coordGrid && letters &&
-      <Grid
-        cursorPosition={cursorPosition}
-        letters={letters}
-        showCursor={mode === WRITE}
-        squares={props.metadata.squares}
-        width={props.image.width}
-        height={props.image.height}
-      />
-      )
+      {props.image && cursorPosition && squares && coordGrid && letters && (
+        <Grid
+          cursorPosition={cursorPosition}
+          letters={letters}
+          showCursor={mode === WRITE}
+          squares={props.metadata.squares}
+          width={props.image.width}
+          height={props.image.height}
+        />
+      )}
       <canvas
         width={props.image.width}
         height={props.image.height}
