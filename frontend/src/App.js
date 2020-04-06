@@ -19,7 +19,7 @@ function App() {
       };
     };
     getGameAndImage();
-  }, []);
+  }, [url]);
 
   return (
     <div className="app">

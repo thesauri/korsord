@@ -10,7 +10,7 @@ import Grid from "./Grid.jsx";
 
 const coordGrid = createCoordinateGrid();
 
-const ERASERSIZE = 8;
+const ERASERSIZE = 4;
 const BRUSHSIZE = 1;
 
 const DRAW = 0;
@@ -272,7 +272,8 @@ const Crossword = (props) => {
     mode,
     letterKey,
     cursorKey,
-    letters
+    letters,
+    props.image
   ]);
 
   // Prevent arrow key scrolling if mode === WRITE
