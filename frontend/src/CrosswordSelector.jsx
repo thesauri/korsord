@@ -3,23 +3,6 @@ import moment from "moment";
 import { config } from "./Constants";
 import "./CrosswordSelector.css";
 
-const useCrosswords = () => {
-  const [crosswords, setCrosswords] = useState([]);
-
-  const fetchAndUpdateCrosswords = async () => {
-    const crosswords = await (
-      await fetch(`${config.BACKEND_URL}/api/crosswords`)
-    ).json();
-    setCrosswords(crosswords);
-  };
-
-  useEffect(() => {
-    fetchAndUpdateCrosswords();
-  }, []);
-
-  return crosswords;
-};
-
 const CrosswordSelector = () => {
   const crosswords = useCrosswords();
   return (
@@ -40,6 +23,23 @@ const CrosswordSelector = () => {
       ))}
     </div>
   );
+};
+
+const useCrosswords = () => {
+  const [crosswords, setCrosswords] = useState([]);
+
+  const fetchAndUpdateCrosswords = async () => {
+    const crosswords = await (
+      await fetch(`${config.BACKEND_URL}/api/crosswords`)
+    ).json();
+    setCrosswords(crosswords);
+  };
+
+  useEffect(() => {
+    fetchAndUpdateCrosswords();
+  }, []);
+
+  return crosswords;
 };
 
 export default CrosswordSelector;
