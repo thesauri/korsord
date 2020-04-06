@@ -41,6 +41,7 @@ const CrosswordSelector = () => {
           <img
             className="crosswordselector-card-image"
             src={`${config.BACKEND_URL}/${crossword.imageUrl}`}
+            alt={``}
           />
           <p className="crosswordselector-card-link" href="#">
             {selectedCrossword === crossword.crosswordId
