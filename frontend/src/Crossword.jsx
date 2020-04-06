@@ -10,8 +10,8 @@ import Grid from "./Grid.jsx";
 
 const coordGrid = createCoordinateGrid();
 
-const ERASERSIZE = 12;
-const BRUSHSIZE = 4;
+const ERASERSIZE = 8;
+const BRUSHSIZE = 1;
 
 const DRAW = 0;
 const WRITE = 1;
@@ -151,12 +151,12 @@ const Crossword = (props) => {
 
     const selectEraser = () => {
       context.globalCompositeOperation = "destination-out";
-      context.lineWidth = ERASERSIZE;
+      context.lineWidth = (props.image.width / 1200.0) * ERASERSIZE;
     };
 
     const selectBrush = () => {
       context.globalCompositeOperation = "source-over";
-      context.lineWidth = BRUSHSIZE;
+      context.lineWidth = (props.image.width / 1200.0) * BRUSHSIZE;
     };
 
     let unsentDrawingEvents = [];
