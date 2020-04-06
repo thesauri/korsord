@@ -1,7 +1,13 @@
 "use strict";
 const router = require("express").Router();
 const jsonParser = require("express").json();
-const { addGame, getCrossword, getCrosswords, getGame } = require("./db");
+const {
+  addGame,
+  addCrossword,
+  getCrossword,
+  getCrosswords,
+  getGame
+} = require("./db");
 
 const enableCORS = (res) => {
   // TODO: Update the origin list once we use the API for something important
@@ -23,6 +29,25 @@ router.use((req, res, next) => {
 });
 
 router.use(jsonParser);
+
+router.post("/crossword", (req, res) => {
+  const crossword = req.body;
+  if (req.body.adminToken !== process.env.ADMIN_TOKEN) {
+    res.status = 401;
+    res.send("Access denied");
+    return;
+  }
+  addCrossword(crossword, (err) => {
+    if (err) {
+      res.status = 400;
+      res.send(`Unable to add crossword: ${err}`);
+      return;
+    }
+    const message = `Crossword ${crossword.newspaper} added`;
+    console.log(`Crossword ${crossword.newspaper} added`);
+    res.send(message);
+  });
+});
 
 router.get("/crosswords", (req, res) => {
   getCrosswords((crosswords) => {
