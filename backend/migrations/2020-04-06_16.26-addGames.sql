@@ -12,7 +12,7 @@ insert into crosswords(newspaper, publishedDate, imageUrl, metadataUrl) values (
 insert into crosswords(newspaper, publishedDate, imageUrl, metadataUrl) values ('HBL', '2020-04-03', 'uploads/2020-04-03/crossword.jpg', 'uploads/2020-04-03/squares.json');
 
 create table if not exists games(
-    url varchar primary key,
+    url text primary key,
     crossword int not null,
     foreign key(crossword) references crosswords(crosswordId)
 );
