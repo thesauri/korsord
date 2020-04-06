@@ -58,6 +58,9 @@ router.post("/game", (req, res) => {
   const gameId = generateGameId();
   addGame(gameId, crosswordId, (err, rows) => {
     if (err) {
+      console.error(
+        `POST /game: Unable to create game ${gameId} for crossword ${crosswordId}`
+      );
       res.status = 400;
       res.send("Game creation failed");
       return;
@@ -68,7 +71,9 @@ router.post("/game", (req, res) => {
     };
     res.contentType = "application/json";
     res.send(JSON.stringify(response));
-    console.log(`Created game ${gameId} for crossword ${crosswordId}`);
+    console.log(
+      `POST /game: Created game ${gameId} for crossword ${crosswordId}`
+    );
   });
 });
 
