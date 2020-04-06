@@ -103,3 +103,13 @@ exports.getLatestWriteEvents = (url, writeIdx, callback) => {
     }
   );
 };
+
+exports.getCrosswords = (callback) => {
+  db.all(
+    "select crosswordId, newspaper, publishedDate, imageUrl, metadataUrl from crosswords order by publishedDate desc;",
+    (err, rows) => {
+      if (err) console.log(err);
+      callback(rows);
+    }
+  );
+};

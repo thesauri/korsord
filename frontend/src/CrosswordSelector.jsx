@@ -31,14 +31,14 @@ const CrosswordSelector = () => {
         >
           <img
             className="crosswordselector-card-image"
-            src={`${config.BACKEND_URL}/${crossword.image_url}`}
+            src={`${config.BACKEND_URL}/${crossword.imageUrl}`}
           />
           <p className="crosswordselector-card-link" href="#">
             {selectedCrossword === crossword.crosswordId
               ? "Öppnar..."
-              : `${crossword.newspaper} ${moment(crossword.date).format(
-                  "DD.MM.YYYY"
-                )}`}
+              : `${crossword.newspaper} ${moment(
+                  crossword.publishedDate
+                ).format("DD.MM.YYYY")}`}
           </p>
         </a>
       ))}

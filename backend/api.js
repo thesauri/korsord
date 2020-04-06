@@ -1,6 +1,7 @@
 "use strict";
 const router = require("express").Router();
 const jsonParser = require("express").json();
+const { getCrosswords } = require("./db");
 
 const enableCORS = (res) => {
   // TODO: Update the origin list once we use the API for something important
@@ -19,24 +20,10 @@ router.use((req, res, next) => {
 router.use(jsonParser);
 
 router.get("/crosswords", (req, res) => {
-  const response = [
-    {
-      crosswordId: 2,
-      newspaper: "HBL",
-      date: "2020-04-03",
-      image_url: "uploads/2020-04-03/crossword.jpg",
-      metadata_url: "uploads/2020-04-04/squares.json"
-    },
-    {
-      crosswordId: 1,
-      newspaper: "HBL",
-      date: "2020-03-27",
-      image_url: "uploads/2020-03-27/crossword.jpg",
-      metadata_url: "uploads/2020-03-27/squares.json"
-    }
-  ];
-  res.contentType = "application/json";
-  res.send(JSON.stringify(response));
+  getCrosswords((crosswords) => {
+    res.contentType = "application/json";
+    res.send(JSON.stringify(crosswords));
+  });
 });
 
 const generateGameId = () => {
