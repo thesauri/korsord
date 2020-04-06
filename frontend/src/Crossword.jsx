@@ -6,6 +6,7 @@ import "./Crossword.css";
 import { useWsApi } from "./wsApi";
 
 import Grid, { createLetterArray, createCoordinateGrid } from "./Grid.jsx";
+import Sidebar from "./Sidebar.jsx"
 
 const ERASERSIZE = 4;
 const BRUSHSIZE = 1;
@@ -332,6 +333,7 @@ const Crossword = (props) => {
 
   return (
     <div>
+      
       <canvas
         width={props.image.width}
         height={props.image.height}
@@ -356,6 +358,7 @@ const Crossword = (props) => {
         ref={canvasInitializer}
         className="crossword"
       ></canvas>
+      <Sidebar />
     </div>
   );
 };
