@@ -30,7 +30,7 @@ function App() {
       };
     };
     getGameAndImage();
-  }, [url]);
+  }, [url, history]);
 
   return (
     <div className="app">
