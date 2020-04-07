@@ -1,6 +1,8 @@
 import React, { useEffect, useCallback, useState } from "react";
 import "./Crossword.css";
 
+import { writeModes } from "./Crossword.jsx";
+
 const Grid = (props) => {
   const [letterCanvas, setLetterCanvas] = useState(null);
   const [cursorCanvas, setCursorCanvas] = useState(null);
@@ -47,14 +49,35 @@ const Grid = (props) => {
       props.squares.grid[props.cursorPosition[0]][props.cursorPosition[1]];
     const [x, y, w, h] = sq.c;
 
-    if (sq.t) {
-      cursorContext.strokeStyle = "rgb(255, 0, 0)";
-    } else {
-      cursorContext.strokeStyle = "rgb(0, 255, 0)";
-    }
+    const style = sq.t ? "rgb(255, 0, 0)" : "rgb(0, 255, 0)";
+    cursorContext.strokeStyle = style;
+    cursorContext.fillStyle = style;
     cursorContext.strokeRect(x, y, w, h);
-    cursorContext.strokeStyle = "rgb(0, 0, 0)";
-  }, [cursorContext, props.squares.grid, props.cursorPosition]);
+
+    if (props.writeMode !== writeModes.STATIONARY) {
+      const base = 0.27 * props.squares.medianLen;
+      const height = 0.21 * props.squares.medianLen;
+      if (props.writeMode === writeModes.RIGHT) {
+        cursorContext.beginPath();
+        cursorContext.moveTo(x + w, y + h / 2 - base);
+        cursorContext.lineTo(x + w + height, y + h / 2);
+        cursorContext.lineTo(x + w, y + h / 2 + base);
+        cursorContext.fill();
+      } else if (props.writeMode === writeModes.DOWN) {
+        cursorContext.beginPath();
+        cursorContext.moveTo(x + w / 2 - base, y + h);
+        cursorContext.lineTo(x + w / 2, y + h + height);
+        cursorContext.lineTo(x + w / 2 + base, y + h);
+        cursorContext.fill();
+      }
+    }
+  }, [
+    cursorContext,
+    props.squares.grid,
+    props.cursorPosition,
+    props.writeMode,
+    props.squares.medianLen
+  ]);
 
   useEffect(() => {
     if (!cursorReady()) {

@@ -14,7 +14,7 @@ const DRAW = 0;
 const WRITE = 1;
 
 // Writing direction
-const writeModes = {
+export const writeModes = {
   STATIONARY: 0,
   RIGHT: 1,
   DOWN: 2
@@ -348,6 +348,7 @@ const Crossword = (props) => {
           squares={props.metadata.squares}
           width={props.image.width}
           height={props.image.height}
+          writeMode={writeMode}
           className="crossword"
         />
       )}
