@@ -104,7 +104,6 @@ const Crossword = (props) => {
         setMode(DRAW);
         return true;
       } else if (key === "Tab") {
-        console.log("prev writemode: ", writeMode);
         setWriteMode((writeMode + 1) % Object.keys(writeModes).length);
         return true;
       }
@@ -202,7 +201,6 @@ const Crossword = (props) => {
 
     const startDrawing = (event) => {
       const [x, y] = getMouseLocation(event);
-      console.log(`D: ${x} ${y}`);
       context.moveTo(x, y);
       lastTo = [x, y];
       context.beginPath();
