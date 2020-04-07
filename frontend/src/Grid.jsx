@@ -7,18 +7,21 @@ const Grid = (props) => {
   const [letterContext, setLetterContext] = useState(null);
   const [cursorContext, setCursorContext] = useState(null);
 
-  const letterCanvasInitializer = useCallback((canvas) => {
-    if (canvas === null || !canvas.getContext) {
-      return;
-    }
+  const letterCanvasInitializer = useCallback(
+    (canvas) => {
+      if (canvas === null || !canvas.getContext) {
+        return;
+      }
 
-    const letterContext = canvas.getContext("2d");
-    letterContext.font = `bold ${props.squares.medianLen}px sans`;
-    letterContext.textAlign = "center";
+      const letterContext = canvas.getContext("2d");
+      letterContext.font = `bold ${props.squares.medianLen}px sans`;
+      letterContext.textAlign = "center";
 
-    setLetterContext(letterContext);
-    setLetterCanvas(canvas);
-  }, []);
+      setLetterContext(letterContext);
+      setLetterCanvas(canvas);
+    },
+    [props.squares.medianLen]
+  );
 
   const cursorCanvasInitializer = useCallback((canvas) => {
     if (canvas === null || !canvas.getContext) {
@@ -39,28 +42,26 @@ const Grid = (props) => {
     cursorContext
   ]);
 
-  const drawCursor = useCallback(
-    (rc) => {
-      const sq = props.squares.grid[rc[0]][rc[1]];
-      const [x, y, w, h] = sq.c;
+  const drawCursor = useCallback(() => {
+    const sq =
+      props.squares.grid[props.cursorPosition[0]][props.cursorPosition[1]];
+    const [x, y, w, h] = sq.c;
 
-      if (sq.t) {
-        cursorContext.strokeStyle = "rgb(255, 0, 0)";
-      } else {
-        cursorContext.strokeStyle = "rgb(0, 255, 0)";
-      }
-      cursorContext.strokeRect(x, y, w, h);
-      cursorContext.strokeStyle = "rgb(0, 0, 0)";
-    },
-    [cursorContext, cursorCanvas]
-  );
+    if (sq.t) {
+      cursorContext.strokeStyle = "rgb(255, 0, 0)";
+    } else {
+      cursorContext.strokeStyle = "rgb(0, 255, 0)";
+    }
+    cursorContext.strokeRect(x, y, w, h);
+    cursorContext.strokeStyle = "rgb(0, 0, 0)";
+  }, [cursorContext, props.squares.grid, props.cursorPosition]);
 
   useEffect(() => {
     if (!cursorReady()) {
       return;
     }
     cursorContext.clearRect(0, 0, cursorCanvas.width, cursorCanvas.height);
-    if (props.showCursor) drawCursor(props.cursorPosition);
+    if (props.showCursor) drawCursor();
   }, [
     props.cursorPosition,
     props.showCursor,
@@ -92,7 +93,7 @@ const Grid = (props) => {
         );
       }
     });
-  }, [props.letters, letterContext, letterReady, letterCanvas]);
+  }, [props.letters, letterContext, letterReady, letterCanvas, props.squares]);
 
   return (
     <div className="crossword">
