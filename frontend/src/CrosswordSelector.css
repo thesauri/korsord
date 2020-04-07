@@ -1,0 +1,48 @@
+.crosswordselector {
+  width: 100%;
+  max-width: 1024px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  justify-items: center;
+  column-gap: 48px;
+  row-gap: 48px;
+}
+.crosswordselector-card {
+  width: 300px;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.crosswordselector-card:hover {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+}
+
+.crosswordselector-card-image {
+  position: absolute;
+  width: 300px;
+  height: 400px;
+  object-fit: cover;
+  object-position: top;
+  z-index: -1;
+}
+
+.crosswordselector-card-link {
+  color: white;
+  background-color: #b20738;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 12px;
+  border-radius: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  user-select: none;
+}

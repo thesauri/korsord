@@ -103,3 +103,58 @@ exports.getLatestWriteEvents = (url, writeIdx, callback) => {
     }
   );
 };
+
+exports.addCrossword = (crossword, callback) => {
+  const { newspaper, publishedDate, imageUrl, metadataUrl } = crossword;
+  db.run(
+    "insert into crosswords(newspaper, publishedDate, imageUrl, metadataUrl) values (?, ?, ?, ?);",
+    [newspaper, publishedDate, imageUrl, metadataUrl],
+    (err) => {
+      if (err) console.log(err);
+      callback(err);
+    }
+  );
+};
+
+exports.getCrossword = (crosswordId, callback) => {
+  db.all(
+    "select crosswordId, newspaper, publishedDate, imageUrl, metadataUrl from crosswords where crosswordId = ?;",
+    [crosswordId],
+    (err, rows) => {
+      if (err) console.log(err);
+      callback(rows);
+    }
+  );
+};
+
+exports.getCrosswords = (callback) => {
+  db.all(
+    "select crosswordId, newspaper, publishedDate, imageUrl, metadataUrl from crosswords order by publishedDate desc;",
+    (err, rows) => {
+      if (err) console.log(err);
+      callback(rows);
+    }
+  );
+};
+
+exports.addGame = (url, crosswordId, callback) => {
+  db.run(
+    "insert into games(url, crossword) values (?, ?);",
+    [url, crosswordId],
+    (err, rows) => {
+      if (err) console.log(err);
+      callback(err, rows);
+    }
+  );
+};
+
+exports.getGame = (url, callback) => {
+  db.all(
+    "select url, crossword from games where url = ?;",
+    [url],
+    (err, rows) => {
+      if (err) console.log(err);
+      callback(err, rows);
+    }
+  );
+};

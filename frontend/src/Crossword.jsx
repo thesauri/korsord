@@ -3,15 +3,12 @@ import { useCallback } from "react";
 import { useState } from "react";
 
 import "./Crossword.css";
-import { useApi } from "./api";
-import { squares, createLetterArray, createCoordinateGrid } from "./squares";
+import { useWsApi } from "./wsApi";
 
-import Grid from "./Grid.jsx";
+import Grid, { createLetterArray, createCoordinateGrid } from "./Grid.jsx";
 
-const coordGrid = createCoordinateGrid();
-
-const ERASERSIZE = 12;
-const BRUSHSIZE = 4;
+const ERASERSIZE = 4;
+const BRUSHSIZE = 1;
 
 const DRAW = 0;
 const WRITE = 1;
@@ -20,14 +17,23 @@ const Crossword = (props) => {
   const [canvas, setCanvas] = useState(null);
   const [context, setContext] = useState(null);
 
-  const [readyState, onExternalDraw, onExternalWrite, sendEvent] = useApi(
+  const [readyState, onExternalDraw, onExternalWrite, sendEvent] = useWsApi(
     props.url
   );
 
   const [mode, setMode] = useState(DRAW);
 
-  const [cursorPosition, setCursorRC] = useState([0, 0]);
-  const [letters, setLetters] = useState(createLetterArray());
+  const [cursorPosition, setCursorPosition] = useState(null);
+  const [squares, setSquares] = useState(null);
+  const [coordGrid, setCoordGrid] = useState(null);
+  const [letters, setLetters] = useState(null); //createLetterArray());
+
+  useEffect(() => {
+    setCursorPosition([0, 0]);
+    setSquares(props.metadata.squares);
+    setCoordGrid(createCoordinateGrid(props.metadata.squares.grid));
+    setLetters(createLetterArray(props.metadata.squares.grid));
+  }, [props.metadata.squares]);
 
   const backgroundInitializer = useCallback(
     (backgroundCanvas) => {
@@ -66,11 +72,11 @@ const Crossword = (props) => {
 
       if (
         row >= 0 &&
-        row < squares.length &&
+        row < props.metadata.squares.grid.length &&
         column >= 0 &&
-        column < squares[row].length
+        column < props.metadata.squares.grid[row].length
       )
-        setCursorRC([row, column]);
+        setCursorPosition([row, column]);
       return true;
     },
     [cursorPosition]
@@ -151,18 +157,19 @@ const Crossword = (props) => {
 
     const selectEraser = () => {
       context.globalCompositeOperation = "destination-out";
-      context.lineWidth = ERASERSIZE;
+      context.lineWidth = (props.image.width / 1200.0) * ERASERSIZE;
     };
 
     const selectBrush = () => {
       context.globalCompositeOperation = "source-over";
-      context.lineWidth = BRUSHSIZE;
+      context.lineWidth = (props.image.width / 1200.0) * BRUSHSIZE;
     };
 
     let unsentDrawingEvents = [];
 
     const startDrawing = (event) => {
       const [x, y] = getMouseLocation(event);
+      console.log(`D: ${x} ${y}`);
       context.moveTo(x, y);
       lastTo = [x, y];
       context.beginPath();
@@ -272,7 +279,8 @@ const Crossword = (props) => {
     mode,
     letterKey,
     cursorKey,
-    letters
+    letters,
+    props.image
   ]);
 
   // Prevent arrow key scrolling if mode === WRITE
@@ -291,19 +299,25 @@ const Crossword = (props) => {
   return (
     <div>
       <canvas
-        width={1193}
-        height={1664}
+        width={props.image.width}
+        height={props.image.height}
         ref={backgroundInitializer}
         className="crossword"
       ></canvas>
-      <Grid
-        cursorPosition={cursorPosition}
-        letters={letters}
-        showCursor={mode === WRITE}
-      />
+      {props.image && cursorPosition && squares && coordGrid && letters && (
+        <Grid
+          cursorPosition={cursorPosition}
+          letters={letters}
+          showCursor={mode === WRITE}
+          squares={props.metadata.squares}
+          width={props.image.width}
+          height={props.image.height}
+          className="crossword"
+        />
+      )}
       <canvas
-        width={1193}
-        height={1664}
+        width={props.image.width}
+        height={props.image.height}
         ref={canvasInitializer}
         className="crossword"
       ></canvas>

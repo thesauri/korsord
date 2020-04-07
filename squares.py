@@ -80,8 +80,8 @@ class SquareDetector():
                     return sqs
 
                 side_len = (right_len / multp)
-                if side_len > (1 + margin) * median_len or \
-                        side_len < (1 - margin) * median_len:
+                if side_len > (1.1) * median_len or \
+                        side_len < (0.9) * median_len:
                     return sqs
 
                 if multp != 2:
@@ -106,8 +106,8 @@ class SquareDetector():
                     return sqs
 
                 side_len = (top_len / multp)
-                if side_len > (1 + margin) * median_len or \
-                        side_len < (1 - margin) * median_len:
+                if side_len > (1.1) * median_len or \
+                        side_len < (0.9) * median_len:
                     return sqs
 
                 if multp != 2:
@@ -128,8 +128,8 @@ class SquareDetector():
             if all(edges):
                 squares.append(rect)
 
-            if sum(edges) == 2:
-                squares.extend(split(rect, edges))
+            # if sum(edges) == 2:
+            #     squares.extend(split(rect, edges))
 
         return squares, median_len
 
@@ -304,7 +304,12 @@ def write(path, squares, has_text, median_len):
             to_write[-1].append({'c': coord, 't': 1 if txt else 0})
 
     with open(path, 'w') as f:
-        f.write(json.dumps({'grid': to_write, 'medianLen': median_len}))
+        f.write(
+            json.dumps(
+                {'squares': {
+                    'grid': to_write,
+                    'medianLen': median_len
+                }}))
 
 
 if __name__ == '__main__':
@@ -329,4 +334,4 @@ if __name__ == '__main__':
     if args.visualize:
         visualize(args.image[0], squares, has_text)
 
-    write('squares.json', squares, has_text, median_len)
+    write('metadata.json', squares, has_text, median_len)
