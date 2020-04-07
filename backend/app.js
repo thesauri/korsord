@@ -135,7 +135,6 @@ server.listen(process.env.SERVER_PORT || 8080, () =>
 );
 
 process.on("SIGINT", function () {
-  clearInterval(intervalTimeout);
   closeDB().then(() => process.exit());
 
   setTimeout(() => process.exit(), 100);
