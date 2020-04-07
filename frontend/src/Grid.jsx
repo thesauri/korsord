@@ -42,10 +42,8 @@ const Grid = (props) => {
   const drawCursor = useCallback(
     (rc) => {
       const sq = props.squares.grid[rc[0]][rc[1]];
-      let [x, y, w, h] = sq.c;
-      const rect = cursorCanvas.getBoundingClientRect();
-      x = x - rect.left;
-      y = y - rect.top;
+      const [x, y, w, h] = sq.c;
+
       if (sq.t) {
         cursorContext.strokeStyle = "rgb(255, 0, 0)";
       } else {
@@ -80,10 +78,7 @@ const Grid = (props) => {
     const getSq = (r, c) => props.squares.grid[r][c];
     props.letters.forEach(({ letter, row, column }) => {
       const sq = getSq(row, column);
-      let [x, y, w, h] = sq.c;
-      const rect = letterCanvas.getBoundingClientRect();
-      x = x - rect.left;
-      y = y - rect.top;
+      const [x, y, w, h] = sq.c;
 
       letterContext.globalCompositeOperation = "destination-out";
       letterContext.fillRect(x, y, w, h);
