@@ -13,6 +13,13 @@ const BRUSHSIZE = 1;
 const DRAW = 0;
 const WRITE = 1;
 
+// Writing direction
+export const writeModes = {
+  STATIONARY: 0,
+  RIGHT: 1,
+  DOWN: 2
+};
+
 const Crossword = (props) => {
   const [canvas, setCanvas] = useState(null);
   const [context, setContext] = useState(null);
@@ -24,6 +31,7 @@ const Crossword = (props) => {
   const [mode, setMode] = useState(DRAW);
 
   const [cursorPosition, setCursorPosition] = useState(null);
+  const [writeMode, setWriteMode] = useState(writeModes.STATIONARY);
   const [squares, setSquares] = useState(null);
   const [coordGrid, setCoordGrid] = useState(null);
   const [letters, setLetters] = useState(null); //createLetterArray());
@@ -54,21 +62,10 @@ const Crossword = (props) => {
     setCanvas(canvas);
   }, []);
 
-  const cursorKey = useCallback(
-    (key) => {
-      let [row, column] = cursorPosition;
-
-      if (key === "ArrowDown" || key === "Down") {
-        row += 1;
-      } else if (key === "ArrowUp" || key === "Up") {
-        row -= 1;
-      } else if (key === "ArrowLeft" || key === "Left") {
-        column -= 1;
-      } else if (key === "ArrowRight" || key === "Right") {
-        column += 1;
-      } else {
-        return false;
-      }
+  const updateCursor = useCallback(
+    (relativeR, relativeC) => {
+      const row = cursorPosition[0] + relativeR;
+      const column = cursorPosition[1] + relativeC;
 
       if (
         row >= 0 &&
@@ -77,19 +74,44 @@ const Crossword = (props) => {
         column < props.metadata.squares.grid[row].length
       )
         setCursorPosition([row, column]);
-      return true;
     },
-    [cursorPosition]
+    [props.metadata.squares.grid, cursorPosition, setCursorPosition]
   );
 
-  const escSwitchMode = (key) => {
-    if (key === "Escape" || key === "Esc") {
-      setMode(DRAW);
-      return true;
-    }
+  const cursorKey = useCallback(
+    (key) => {
+      if (key === "ArrowDown" || key === "Down") {
+        updateCursor(1, 0);
+      } else if (key === "ArrowUp" || key === "Up") {
+        updateCursor(-1, 0);
+      } else if (key === "ArrowLeft" || key === "Left") {
+        updateCursor(0, -1);
+      } else if (key === "ArrowRight" || key === "Right") {
+        updateCursor(0, 1);
+      } else {
+        return false;
+      }
 
-    return false;
-  };
+      return true;
+    },
+    [updateCursor]
+  );
+
+  const writeModeSwitch = useCallback(
+    (key) => {
+      if (key === "Escape" || key === "Esc") {
+        setWriteMode(writeModes.STATIONARY);
+        setMode(DRAW);
+        return true;
+      } else if (key === "Tab") {
+        setWriteMode((writeMode + 1) % Object.keys(writeModes).length);
+        return true;
+      }
+
+      return false;
+    },
+    [setMode, writeMode, setWriteMode]
+  );
 
   const letterKey = useCallback(
     (key) => {
@@ -107,19 +129,29 @@ const Crossword = (props) => {
 
       const isLetter =
         key.length === 1 && key.toUpperCase().match(/[A-Z|Å|Ä|Ö]/i);
+
+      let movement = 0;
       if (isLetter) {
         updateAndSend(key.toUpperCase());
-
-        return true;
+        movement = 1;
       } else if (key === "Backspace") {
         updateAndSend("");
-
-        return true;
+        movement = -1;
+      } else {
+        return false;
       }
 
-      return false;
+      if (movement !== 0) {
+        if (writeMode === writeModes.DOWN) {
+          updateCursor(movement, 0);
+        } else if (writeMode === writeModes.RIGHT) {
+          updateCursor(0, movement);
+        }
+      }
+
+      return true;
     },
-    [cursorPosition, letters, sendEvent]
+    [coordGrid, updateCursor, cursorPosition, letters, sendEvent, writeMode]
   );
 
   useEffect(() => {
@@ -150,7 +182,7 @@ const Crossword = (props) => {
         }
       } else {
         cursorKey(event.key) ||
-          escSwitchMode(event.key) ||
+          writeModeSwitch(event.key) ||
           letterKey(event.key);
       }
     };
@@ -169,7 +201,6 @@ const Crossword = (props) => {
 
     const startDrawing = (event) => {
       const [x, y] = getMouseLocation(event);
-      console.log(`D: ${x} ${y}`);
       context.moveTo(x, y);
       lastTo = [x, y];
       context.beginPath();
@@ -280,7 +311,9 @@ const Crossword = (props) => {
     letterKey,
     cursorKey,
     letters,
-    props.image
+    props.image,
+    writeModeSwitch,
+    coordGrid
   ]);
 
   // Prevent arrow key scrolling if mode === WRITE
@@ -289,7 +322,8 @@ const Crossword = (props) => {
       if (
         mode === WRITE &&
         ([32, 37, 38, 39, 40].indexOf(event.keyCode) > -1 ||
-          event.key === "Backspace")
+          event.key === "Backspace" ||
+          event.key === "Tab")
       ) {
         event.preventDefault();
       }
@@ -312,6 +346,7 @@ const Crossword = (props) => {
           squares={props.metadata.squares}
           width={props.image.width}
           height={props.image.height}
+          writeMode={writeMode}
           className="crossword"
         />
       )}

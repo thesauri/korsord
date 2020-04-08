@@ -1,24 +1,29 @@
 import React, { useEffect, useCallback, useState } from "react";
 import "./Crossword.css";
 
+import { writeModes } from "./Crossword.jsx";
+
 const Grid = (props) => {
   const [letterCanvas, setLetterCanvas] = useState(null);
   const [cursorCanvas, setCursorCanvas] = useState(null);
   const [letterContext, setLetterContext] = useState(null);
   const [cursorContext, setCursorContext] = useState(null);
 
-  const letterCanvasInitializer = useCallback((canvas) => {
-    if (canvas === null || !canvas.getContext) {
-      return;
-    }
+  const letterCanvasInitializer = useCallback(
+    (canvas) => {
+      if (canvas === null || !canvas.getContext) {
+        return;
+      }
 
-    const letterContext = canvas.getContext("2d");
-    letterContext.font = `bold ${props.squares.medianLen}px sans`;
-    letterContext.textAlign = "center";
+      const letterContext = canvas.getContext("2d");
+      letterContext.font = `bold ${props.squares.medianLen}px sans`;
+      letterContext.textAlign = "center";
 
-    setLetterContext(letterContext);
-    setLetterCanvas(canvas);
-  }, []);
+      setLetterContext(letterContext);
+      setLetterCanvas(canvas);
+    },
+    [props.squares.medianLen]
+  );
 
   const cursorCanvasInitializer = useCallback((canvas) => {
     if (canvas === null || !canvas.getContext) {
@@ -39,28 +44,47 @@ const Grid = (props) => {
     cursorContext
   ]);
 
-  const drawCursor = useCallback(
-    (rc) => {
-      const sq = props.squares.grid[rc[0]][rc[1]];
-      const [x, y, w, h] = sq.c;
+  const drawCursor = useCallback(() => {
+    const sq =
+      props.squares.grid[props.cursorPosition[0]][props.cursorPosition[1]];
+    const [x, y, w, h] = sq.c;
 
-      if (sq.t) {
-        cursorContext.strokeStyle = "rgb(255, 0, 0)";
-      } else {
-        cursorContext.strokeStyle = "rgb(0, 255, 0)";
+    const style = sq.t ? "rgb(255, 0, 0)" : "rgb(0, 255, 0)";
+    cursorContext.strokeStyle = style;
+    cursorContext.fillStyle = style;
+    cursorContext.strokeRect(x, y, w, h);
+
+    if (props.writeMode !== writeModes.STATIONARY) {
+      const base = 0.27 * props.squares.medianLen;
+      const height = 0.21 * props.squares.medianLen;
+      if (props.writeMode === writeModes.RIGHT) {
+        cursorContext.beginPath();
+        cursorContext.moveTo(x + w, y + h / 2 - base);
+        cursorContext.lineTo(x + w + height, y + h / 2);
+        cursorContext.lineTo(x + w, y + h / 2 + base);
+        cursorContext.fill();
+      } else if (props.writeMode === writeModes.DOWN) {
+        cursorContext.beginPath();
+        cursorContext.moveTo(x + w / 2 - base, y + h);
+        cursorContext.lineTo(x + w / 2, y + h + height);
+        cursorContext.lineTo(x + w / 2 + base, y + h);
+        cursorContext.fill();
       }
-      cursorContext.strokeRect(x, y, w, h);
-      cursorContext.strokeStyle = "rgb(0, 0, 0)";
-    },
-    [cursorContext, cursorCanvas]
-  );
+    }
+  }, [
+    cursorContext,
+    props.squares.grid,
+    props.cursorPosition,
+    props.writeMode,
+    props.squares.medianLen
+  ]);
 
   useEffect(() => {
     if (!cursorReady()) {
       return;
     }
     cursorContext.clearRect(0, 0, cursorCanvas.width, cursorCanvas.height);
-    if (props.showCursor) drawCursor(props.cursorPosition);
+    if (props.showCursor) drawCursor();
   }, [
     props.cursorPosition,
     props.showCursor,
@@ -92,7 +116,7 @@ const Grid = (props) => {
         );
       }
     });
-  }, [props.letters, letterContext, letterReady, letterCanvas]);
+  }, [props.letters, letterContext, letterReady, letterCanvas, props.squares]);
 
   return (
     <div className="crossword">
