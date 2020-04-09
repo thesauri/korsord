@@ -39,6 +39,10 @@ h3 {
     cursor: pointer;
 }
 
+.section-list:last-child {
+    padding-bottom: 10px;
+}
+
 .tools > p {
     border-left: 0;
 }
