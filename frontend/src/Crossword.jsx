@@ -11,8 +11,9 @@ import Sidebar from "./Sidebar.jsx"
 const ERASERSIZE = 4;
 const BRUSHSIZE = 1;
 
-const DRAW = 0;
-const WRITE = 1;
+export const DRAW = 0;
+export const WRITE = 1;
+export const ERASE = 2;
 
 // Writing direction
 export const writeModes = {
@@ -155,6 +156,25 @@ const Crossword = (props) => {
     [coordGrid, updateCursor, cursorPosition, letters, sendEvent, writeMode]
   );
 
+
+  useEffect(() => {
+    if (!context) {
+      return;
+    }
+    if (mode === DRAW) {
+      context.globalCompositeOperation = "source-over";
+      context.lineWidth = (props.image.width / 1200.0) * BRUSHSIZE;
+    } else if (mode === ERASE) {
+      context.globalCompositeOperation = "destination-out";
+      context.lineWidth = (props.image.width / 1200.0) * ERASERSIZE;
+    } else if (mode === WRITE) {
+
+    } else {
+      console.error(`Unknown mode: ${mode}`);
+    }
+  }, [context, mode]);
+
+ 
   useEffect(() => {
     if (!canvas || !context || readyState !== WebSocket.OPEN) {
       return;
@@ -171,14 +191,14 @@ const Crossword = (props) => {
     let lastTo = [-1, -1];
 
     const handleKey = (event) => {
-      if (mode === DRAW) {
+      if (mode !== WRITE) {
         if (event.key === "Enter") {
           setMode(WRITE);
         } else if (event.key === "e") {
-          selectEraser();
+          setMode(ERASE);
           console.log("eraser selected");
         } else if (event.key === "b") {
-          selectBrush();
+          setMode(DRAW);
           console.log("brush selected");
         }
       } else {
@@ -186,16 +206,6 @@ const Crossword = (props) => {
           writeModeSwitch(event.key) ||
           letterKey(event.key);
       }
-    };
-
-    const selectEraser = () => {
-      context.globalCompositeOperation = "destination-out";
-      context.lineWidth = (props.image.width / 1200.0) * ERASERSIZE;
-    };
-
-    const selectBrush = () => {
-      context.globalCompositeOperation = "source-over";
-      context.lineWidth = (props.image.width / 1200.0) * BRUSHSIZE;
     };
 
     let unsentDrawingEvents = [];
@@ -284,8 +294,6 @@ const Crossword = (props) => {
       }
     };
 
-    selectBrush();
-
     onExternalDraw.current = handleExternalDrawing;
 
     const handleExternalWrite = (writeHistory) => {
@@ -297,7 +305,7 @@ const Crossword = (props) => {
     };
     onExternalWrite.current = handleExternalWrite;
 
-    window.onkeyup = handleKey;
+    window.onkeydown = handleKey;
     canvas.onmousedown = startDrawing;
     canvas.onmousemove = draw;
     canvas.onmouseup = stopDrawing;
@@ -358,7 +366,7 @@ const Crossword = (props) => {
         ref={canvasInitializer}
         className="crossword"
       ></canvas>
-      <Sidebar />
+      <Sidebar mode={mode} setMode={setMode} />
     </div>
   );
 };
