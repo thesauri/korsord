@@ -305,7 +305,7 @@ const Crossword = (props) => {
     };
     onExternalWrite.current = handleExternalWrite;
 
-    window.onkeydown = handleKey;
+    window.onkeyup = handleKey;
     canvas.onmousedown = startDrawing;
     canvas.onmousemove = draw;
     canvas.onmouseup = stopDrawing;
