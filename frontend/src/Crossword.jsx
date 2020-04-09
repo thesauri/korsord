@@ -6,7 +6,7 @@ import "./Crossword.css";
 import { useWsApi } from "./wsApi";
 
 import Grid, { createLetterArray, createCoordinateGrid } from "./Grid.jsx";
-import Sidebar from "./Sidebar.jsx"
+import Sidebar from "./Sidebar.jsx";
 
 const ERASERSIZE = 4;
 const BRUSHSIZE = 1;
@@ -156,7 +156,6 @@ const Crossword = (props) => {
     [coordGrid, updateCursor, cursorPosition, letters, sendEvent, writeMode]
   );
 
-
   useEffect(() => {
     if (!context) {
       return;
@@ -168,13 +167,11 @@ const Crossword = (props) => {
       context.globalCompositeOperation = "destination-out";
       context.lineWidth = (props.image.width / 1200.0) * ERASERSIZE;
     } else if (mode === WRITE) {
-
     } else {
       console.error(`Unknown mode: ${mode}`);
     }
-  }, [context, mode]);
+  }, [context, mode, props.image.width]);
 
- 
   useEffect(() => {
     if (!canvas || !context || readyState !== WebSocket.OPEN) {
       return;
@@ -191,6 +188,15 @@ const Crossword = (props) => {
     let lastTo = [-1, -1];
 
     const handleKey = (event) => {
+      if (
+        mode === WRITE &&
+        ([32, 37, 38, 39, 40].indexOf(event.keyCode) > -1 ||
+          event.key === "Backspace" ||
+          event.key === "Tab")
+      ) {
+        event.preventDefault();
+      }
+
       if (mode !== WRITE) {
         if (event.key === "Enter") {
           setMode(WRITE);
@@ -305,7 +311,7 @@ const Crossword = (props) => {
     };
     onExternalWrite.current = handleExternalWrite;
 
-    window.onkeyup = handleKey;
+    window.onkeydown = handleKey;
     canvas.onmousedown = startDrawing;
     canvas.onmousemove = draw;
     canvas.onmouseup = stopDrawing;
@@ -325,23 +331,8 @@ const Crossword = (props) => {
     coordGrid
   ]);
 
-  // Prevent arrow key scrolling if mode === WRITE
-  useEffect(() => {
-    window.onkeydown = (event) => {
-      if (
-        mode === WRITE &&
-        ([32, 37, 38, 39, 40].indexOf(event.keyCode) > -1 ||
-          event.key === "Backspace" ||
-          event.key === "Tab")
-      ) {
-        event.preventDefault();
-      }
-    };
-  }, [mode]);
-
   return (
     <div>
-      
       <canvas
         width={props.image.width}
         height={props.image.height}
