@@ -1,37 +1,80 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "./Sidebar.css";
-import {DRAW, WRITE, ERASE} from "./Crossword.jsx";
+import { DRAW, WRITE, ERASE } from "./Crossword.jsx";
 
-
-const Sidebar = (props) => {    
+const Sidebar = (props) => {
+  const [hide, setHide] = useState(false);
+  if (hide) {
+    return (
+      <div className="hidden-sidebar">
+        <div className="sidebar-section">
+          <div className="section-list tools">
+            <p
+              className={props.mode === DRAW ? "active" : ""}
+              onClick={() => props.setMode(DRAW)}
+            >
+              <i className="fas fa-pen"></i>
+            </p>
+            <p
+              className={props.mode === ERASE ? "active" : ""}
+              onClick={() => props.setMode(ERASE)}
+            >
+              <i className="fas fa-eraser" id="erase"></i>
+            </p>
+            <p
+              className={props.mode === WRITE ? "active" : ""}
+              onClick={() => props.setMode(WRITE)}
+            >
+              <i className="fas fa-font" id="write"></i>
+            </p>
+            <p onClick={() => setHide(!hide)}>
+              <i className="fas fa-angle-double-right" id="write"></i>
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  } else {
     return (
       <div className="sidebar">
-        <Link to={""} style={{textDecoration: 'none'}}>
-            <div className="sidebar-header sidebar-section">
-                <h3 className="sidebar-header-text">
-                    Fredagskorsord
-                </h3> 
-            </div>
+        <Link to={""} style={{ textDecoration: "none" }}>
+          <div className="sidebar-header sidebar-section">
+            <h3 className="sidebar-header-text">Fredagskorsord</h3>
+          </div>
         </Link>
         <div className="sidebar-section">
-            <h3>Verktyg</h3>
-            <div className="section-list tools">
-                <p className={props.mode === DRAW ? "active" : ""} onClick={() => props.setMode(DRAW)}>
-                    <i className="fas fa-pen"></i>
-                    Penna (B)
-                </p>
-                <p className={props.mode === ERASE ? "active": ""} onClick={() => props.setMode(ERASE)}>
-                    <i className="fas fa-eraser" id="erase"></i>
-                    Suddgummi (E)
-                </p>
-                <p className={props.mode === WRITE ? "active" : ""} onClick={() => props.setMode(WRITE)}>
-                    <i className="fas fa-font" id="write"></i>
-                    Text {props.mode === WRITE ? "(ESC to exit)" : "(Enter)"}
-                </p>
-            </div>    
+          <h3>Verktyg</h3>
+          <div className="section-list tools">
+            <p
+              className={props.mode === DRAW ? "active" : ""}
+              onClick={() => props.setMode(DRAW)}
+            >
+              <i className="fas fa-pen"></i>
+              Penna (B)
+            </p>
+            <p
+              className={props.mode === ERASE ? "active" : ""}
+              onClick={() => props.setMode(ERASE)}
+            >
+              <i className="fas fa-eraser" id="erase"></i>
+              Suddgummi (E)
+            </p>
+            <p
+              className={props.mode === WRITE ? "active" : ""}
+              onClick={() => props.setMode(WRITE)}
+            >
+              <i className="fas fa-font" id="write"></i>
+              Text {props.mode === WRITE ? "(ESC to exit)" : "(Enter)"}
+            </p>
+            <p onClick={() => setHide(!hide)} style={{ textAlign: "center" }}>
+              <i className="fas fa-angle-double-left" />
+              <i className="fas fa-angle-double-left" />
+              <i className="fas fa-angle-double-left" />
+            </p>
+          </div>
         </div>
-        { /* 
+        {/*
         TODO: Add functionality in a later PR
         <div className="sidebar-section">
             <h3>Lösare</h3>
@@ -56,6 +99,7 @@ const Sidebar = (props) => {
         */}
       </div>
     );
-  };
-  
-  export default Sidebar;
+  }
+};
+
+export default Sidebar;
