@@ -6,15 +6,14 @@
     left: 0;
     top: 0;
     box-shadow: 1px 0 3px rgba(0, 0, 0, 0.3);
-    margin-top: 0px;
 }
 
 .sidebar-header {
     padding: 12px 0px;
-    border-bottom: 3px solid var(--primary);
+    background-color: rgb(240, 240, 240);
 }
 
-.sidebar-header > h3 {
+.sidebar-header-text {
     margin-top: 0px;
     margin-bottom: 0px;
     padding: 0 0 0 10px;
@@ -37,6 +36,7 @@ h3 {
     font-weight: 600;
     padding: 10px 5px 10px 15px;
     margin: 0px;
+    cursor: pointer;
 }
 
 .tools > p {
@@ -48,7 +48,7 @@ h3 {
     background-color: rgb(240, 240, 240);
 }
 
-i {
+.section-list > p > i {
     margin-right: 10px;
 }
 
