@@ -6,6 +6,10 @@
   align-items: center;
 }
 
+h1 {
+  font-family: 'Playfair Display', serif;
+}
+
 .home-divider {
   margin: 32px 0;
 }
