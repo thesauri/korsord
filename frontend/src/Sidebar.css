@@ -8,24 +8,19 @@
     box-shadow: 1px 0 3px rgba(0, 0, 0, 0.3);
 }
 
-.hidden-sidebar {
-    background-color: white;
+.collapsed-sidebar {
     width: 50px;
-    position: fixed;
-    left: 0;
-    top: 0;
-    box-shadow: 1px 0 3px rgba(0, 0, 0, 0.3);
 }
 
 .sidebar-header {
-    padding: 12px 0px;
+    padding: 10px 0px;
     background-color: rgb(240, 240, 240);
 }
 
 .sidebar-header-text {
     margin-top: 0px;
     margin-bottom: 0px;
-    padding: 0 0 0 10px;
+    padding: 0 0 0 16px;
     font-size: 1.4em;
     font-family: 'Playfair Display', serif;
 }
@@ -37,14 +32,14 @@
 h3 {
     color: rgb(40, 40, 40);
     font-size: 1em;
-    padding: 16px 10px 16px 10px;
+    padding: 16px;
     margin: 0px;
 }
 
 .section-list > p {
     color: var(--dark-gray);
     font-weight: 600;
-    padding: 10px 5px 10px 15px;
+    padding: 10px 5px 10px 16px;
     margin: 0px;
     cursor: pointer;
 }
@@ -76,7 +71,15 @@ h3 {
     color: var(--primary) !important;
 }
 
-.link:hover {
+.clickable {
+    color: var(--dark-gray);
+    font-weight: 600;
+    cursor: pointer;
+    padding: 10px 5px 10px 16px;
+    margin: 0px;
+}
+
+.clickable:hover {
     color: black;
     background-color: rgb(240, 240, 240);
 }

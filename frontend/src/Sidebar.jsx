@@ -7,8 +7,14 @@ const Sidebar = (props) => {
   const [hide, setHide] = useState(false);
   if (hide) {
     return (
-      <div className="hidden-sidebar">
+      <div className="sidebar collapsed-sidebar">
+        <Link to={""} style={{ textDecoration: "none" }}>
+          <div className="sidebar-header sidebar-section">
+            <h3 className="sidebar-header-text">F</h3>
+          </div>
+        </Link>
         <div className="sidebar-section">
+          <h3>&#8203;</h3>
           <div className="section-list tools">
             <p
               className={props.mode === DRAW ? "active" : ""}
@@ -28,10 +34,12 @@ const Sidebar = (props) => {
             >
               <i className="fas fa-font" id="write"></i>
             </p>
-            <p onClick={() => setHide(!hide)}>
-              <i className="fas fa-angle-double-right" id="write"></i>
-            </p>
           </div>
+        </div>
+        <div className="sidebar-section">
+            <p className="clickable" onClick={() => setHide(!hide)} style={{ textAlign: "left", paddingLeft: "16px"}}>
+              <i className="fas fa-angle-double-right" />
+            </p>
         </div>
       </div>
     );
@@ -67,12 +75,12 @@ const Sidebar = (props) => {
               <i className="fas fa-font" id="write"></i>
               Text {props.mode === WRITE ? "(ESC to exit)" : "(Enter)"}
             </p>
-            <p onClick={() => setHide(!hide)} style={{ textAlign: "center" }}>
-              <i className="fas fa-angle-double-left" />
-              <i className="fas fa-angle-double-left" />
+          </div>
+        </div>
+        <div className="sidebar-section">
+            <p className="clickable" onClick={() => setHide(!hide)} style={{ textAlign: "right", paddingRight: "16px"}}>
               <i className="fas fa-angle-double-left" />
             </p>
-          </div>
         </div>
         {/*
         TODO: Add functionality in a later PR
