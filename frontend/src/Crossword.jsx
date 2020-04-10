@@ -8,7 +8,7 @@ import { useWsApi } from "./wsApi";
 import Grid, { createLetterArray, createCoordinateGrid } from "./Grid.jsx";
 import Sidebar from "./Sidebar.jsx";
 
-const ERASERSIZE = 4;
+const ERASERSIZE = 8;
 const BRUSHSIZE = 1;
 
 export const DRAW = 0;
