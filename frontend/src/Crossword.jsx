@@ -6,12 +6,14 @@ import "./Crossword.css";
 import { useWsApi } from "./wsApi";
 
 import Grid, { createLetterArray, createCoordinateGrid } from "./Grid.jsx";
+import Sidebar from "./Sidebar.jsx";
 
 const ERASERSIZE = 4;
 const BRUSHSIZE = 1;
 
-const DRAW = 0;
-const WRITE = 1;
+export const DRAW = 0;
+export const WRITE = 1;
+export const ERASE = 2;
 
 // Writing direction
 export const writeModes = {
@@ -155,6 +157,22 @@ const Crossword = (props) => {
   );
 
   useEffect(() => {
+    if (!context) {
+      return;
+    }
+    if (mode === DRAW) {
+      context.globalCompositeOperation = "source-over";
+      context.lineWidth = (props.image.width / 1200.0) * BRUSHSIZE;
+    } else if (mode === ERASE) {
+      context.globalCompositeOperation = "destination-out";
+      context.lineWidth = (props.image.width / 1200.0) * ERASERSIZE;
+    } else if (mode === WRITE) {
+    } else {
+      console.error(`Unknown mode: ${mode}`);
+    }
+  }, [context, mode, props.image.width]);
+
+  useEffect(() => {
     if (!canvas || !context || readyState !== WebSocket.OPEN) {
       return;
     }
@@ -170,14 +188,23 @@ const Crossword = (props) => {
     let lastTo = [-1, -1];
 
     const handleKey = (event) => {
-      if (mode === DRAW) {
+      if (
+        mode === WRITE &&
+        ([32, 37, 38, 39, 40].indexOf(event.keyCode) > -1 ||
+          event.key === "Backspace" ||
+          event.key === "Tab")
+      ) {
+        event.preventDefault();
+      }
+
+      if (mode !== WRITE) {
         if (event.key === "Enter") {
           setMode(WRITE);
         } else if (event.key === "e") {
-          selectEraser();
+          setMode(ERASE);
           console.log("eraser selected");
         } else if (event.key === "b") {
-          selectBrush();
+          setMode(DRAW);
           console.log("brush selected");
         }
       } else {
@@ -185,16 +212,6 @@ const Crossword = (props) => {
           writeModeSwitch(event.key) ||
           letterKey(event.key);
       }
-    };
-
-    const selectEraser = () => {
-      context.globalCompositeOperation = "destination-out";
-      context.lineWidth = (props.image.width / 1200.0) * ERASERSIZE;
-    };
-
-    const selectBrush = () => {
-      context.globalCompositeOperation = "source-over";
-      context.lineWidth = (props.image.width / 1200.0) * BRUSHSIZE;
     };
 
     let unsentDrawingEvents = [];
@@ -283,8 +300,6 @@ const Crossword = (props) => {
       }
     };
 
-    selectBrush();
-
     onExternalDraw.current = handleExternalDrawing;
 
     const handleExternalWrite = (writeHistory) => {
@@ -296,7 +311,7 @@ const Crossword = (props) => {
     };
     onExternalWrite.current = handleExternalWrite;
 
-    window.onkeyup = handleKey;
+    window.onkeydown = handleKey;
     canvas.onmousedown = startDrawing;
     canvas.onmousemove = draw;
     canvas.onmouseup = stopDrawing;
@@ -315,20 +330,6 @@ const Crossword = (props) => {
     writeModeSwitch,
     coordGrid
   ]);
-
-  // Prevent arrow key scrolling if mode === WRITE
-  useEffect(() => {
-    window.onkeydown = (event) => {
-      if (
-        mode === WRITE &&
-        ([32, 37, 38, 39, 40].indexOf(event.keyCode) > -1 ||
-          event.key === "Backspace" ||
-          event.key === "Tab")
-      ) {
-        event.preventDefault();
-      }
-    };
-  }, [mode]);
 
   return (
     <div>
@@ -356,6 +357,7 @@ const Crossword = (props) => {
         ref={canvasInitializer}
         className="crossword"
       ></canvas>
+      <Sidebar mode={mode} setMode={setMode} />
     </div>
   );
 };

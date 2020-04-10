@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback, useState } from "react";
+import "./Grid.css";
 import "./Crossword.css";
 
 import { writeModes } from "./Crossword.jsx";
@@ -124,13 +125,13 @@ const Grid = (props) => {
         width={props.width}
         height={props.height}
         ref={letterCanvasInitializer}
-        className="crossword"
+        className="grid"
       ></canvas>
       <canvas
         width={props.width}
         height={props.height}
         ref={cursorCanvasInitializer}
-        className="crossword"
+        className="grid"
       ></canvas>
     </div>
   );
