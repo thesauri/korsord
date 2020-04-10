@@ -34,13 +34,11 @@ const Crossword = (props) => {
 
   const [cursorPosition, setCursorPosition] = useState(null);
   const [writeMode, setWriteMode] = useState(writeModes.STATIONARY);
-  const [squares, setSquares] = useState(null);
   const [coordGrid, setCoordGrid] = useState(null);
   const [letters, setLetters] = useState(null); //createLetterArray());
 
   useEffect(() => {
     setCursorPosition([0, 0]);
-    setSquares(props.metadata.squares);
     setCoordGrid(createCoordinateGrid(props.metadata.squares.grid));
     setLetters(createLetterArray(props.metadata.squares.grid));
   }, [props.metadata.squares]);
@@ -361,18 +359,22 @@ const Crossword = (props) => {
         ref={backgroundInitializer}
         className="crossword"
       ></canvas>
-      {props.image && cursorPosition && squares && coordGrid && letters && (
-        <Grid
-          cursorPosition={cursorPosition}
-          letters={letters}
-          showCursor={mode === WRITE}
-          squares={props.metadata.squares}
-          width={props.image.width}
-          height={props.image.height}
-          writeMode={writeMode}
-          className="crossword"
-        />
-      )}
+      {props.image &&
+        cursorPosition &&
+        props.metadata.squares &&
+        coordGrid &&
+        letters && (
+          <Grid
+            cursorPosition={cursorPosition}
+            letters={letters}
+            showCursor={mode === WRITE}
+            squares={props.metadata.squares}
+            width={props.image.width}
+            height={props.image.height}
+            writeMode={writeMode}
+            className="crossword"
+          />
+        )}
       <canvas
         width={props.image.width}
         height={props.image.height}
