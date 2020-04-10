@@ -200,6 +200,7 @@ const Crossword = (props) => {
       if (mode !== WRITE) {
         if (event.key === "Enter") {
           setMode(WRITE);
+          stopDrawing();
         } else if (event.key === "e") {
           setMode(ERASE);
           console.log("eraser selected");
@@ -217,18 +218,36 @@ const Crossword = (props) => {
     let unsentDrawingEvents = [];
 
     const startDrawing = (event) => {
-      const [x, y] = getMouseLocation(event);
-      context.moveTo(x, y);
-      lastTo = [x, y];
-      context.beginPath();
-      isDrawing = true;
-      unsentDrawingEvents.push({
-        x,
-        y,
-        globalCompositeOperation: context.globalCompositeOperation,
-        lineWidth: context.lineWidth,
-        action: "START_DRAWING"
-      });
+      if (mode === WRITE) {
+        const [mouseX, mouseY] = getMouseLocation(event);
+
+        const row = props.metadata.squares.grid.findIndex((squareRow) => {
+          const [, y, , h] = squareRow[0].c;
+          return mouseY >= y && mouseY <= y + h;
+        });
+        if (row === -1) return;
+
+        const column = props.metadata.squares.grid[row].findIndex((square) => {
+          const [x, , w] = square.c;
+          return mouseX >= x && mouseX <= x + w;
+        });
+        if (column === -1) return;
+
+        setCursorPosition([row, column]);
+      } else {
+        const [x, y] = getMouseLocation(event);
+        context.moveTo(x, y);
+        lastTo = [x, y];
+        context.beginPath();
+        isDrawing = true;
+        unsentDrawingEvents.push({
+          x,
+          y,
+          globalCompositeOperation: context.globalCompositeOperation,
+          lineWidth: context.lineWidth,
+          action: "START_DRAWING"
+        });
+      }
     };
 
     const draw = (event) => {
@@ -284,11 +303,13 @@ const Crossword = (props) => {
       if (batchedExternalDrawEvents.length > 0) {
         flushExternalDrawingEvents();
       }
-      sendEvent({
-        action: "DRAWING_EVENTS",
-        drawingEvents: unsentDrawingEvents
-      });
-      unsentDrawingEvents = [];
+      if (unsentDrawingEvents.length > 0) {
+        sendEvent({
+          action: "DRAWING_EVENTS",
+          drawingEvents: unsentDrawingEvents
+        });
+        unsentDrawingEvents = [];
+      }
     };
 
     const handleExternalDrawing = (drawingEvents) => {
@@ -328,7 +349,8 @@ const Crossword = (props) => {
     letters,
     props.image,
     writeModeSwitch,
-    coordGrid
+    coordGrid,
+    props.metadata.squares.grid
   ]);
 
   return (
