@@ -8,7 +8,7 @@ import { useWsApi } from "./wsApi";
 import Grid, { createLetterArray, createCoordinateGrid } from "./Grid.jsx";
 import Sidebar from "./Sidebar.jsx";
 
-const ERASERSIZE = 4;
+const ERASERSIZE = 8;
 const BRUSHSIZE = 1;
 
 export const DRAW = 0;
@@ -34,13 +34,11 @@ const Crossword = (props) => {
 
   const [cursorPosition, setCursorPosition] = useState(null);
   const [writeMode, setWriteMode] = useState(writeModes.STATIONARY);
-  const [squares, setSquares] = useState(null);
   const [coordGrid, setCoordGrid] = useState(null);
   const [letters, setLetters] = useState(null); //createLetterArray());
 
   useEffect(() => {
     setCursorPosition([0, 0]);
-    setSquares(props.metadata.squares);
     setCoordGrid(createCoordinateGrid(props.metadata.squares.grid));
     setLetters(createLetterArray(props.metadata.squares.grid));
   }, [props.metadata.squares]);
@@ -200,6 +198,7 @@ const Crossword = (props) => {
       if (mode !== WRITE) {
         if (event.key === "Enter") {
           setMode(WRITE);
+          stopDrawing();
         } else if (event.key === "e") {
           setMode(ERASE);
           console.log("eraser selected");
@@ -217,18 +216,36 @@ const Crossword = (props) => {
     let unsentDrawingEvents = [];
 
     const startDrawing = (event) => {
-      const [x, y] = getMouseLocation(event);
-      context.moveTo(x, y);
-      lastTo = [x, y];
-      context.beginPath();
-      isDrawing = true;
-      unsentDrawingEvents.push({
-        x,
-        y,
-        globalCompositeOperation: context.globalCompositeOperation,
-        lineWidth: context.lineWidth,
-        action: "START_DRAWING"
-      });
+      if (mode === WRITE) {
+        const [mouseX, mouseY] = getMouseLocation(event);
+
+        const row = props.metadata.squares.grid.findIndex((squareRow) => {
+          const [, y, , h] = squareRow[0].c;
+          return mouseY >= y && mouseY <= y + h;
+        });
+        if (row === -1) return;
+
+        const column = props.metadata.squares.grid[row].findIndex((square) => {
+          const [x, , w] = square.c;
+          return mouseX >= x && mouseX <= x + w;
+        });
+        if (column === -1) return;
+
+        setCursorPosition([row, column]);
+      } else {
+        const [x, y] = getMouseLocation(event);
+        context.moveTo(x, y);
+        lastTo = [x, y];
+        context.beginPath();
+        isDrawing = true;
+        unsentDrawingEvents.push({
+          x,
+          y,
+          globalCompositeOperation: context.globalCompositeOperation,
+          lineWidth: context.lineWidth,
+          action: "START_DRAWING"
+        });
+      }
     };
 
     const draw = (event) => {
@@ -284,11 +301,13 @@ const Crossword = (props) => {
       if (batchedExternalDrawEvents.length > 0) {
         flushExternalDrawingEvents();
       }
-      sendEvent({
-        action: "DRAWING_EVENTS",
-        drawingEvents: unsentDrawingEvents
-      });
-      unsentDrawingEvents = [];
+      if (unsentDrawingEvents.length > 0) {
+        sendEvent({
+          action: "DRAWING_EVENTS",
+          drawingEvents: unsentDrawingEvents
+        });
+        unsentDrawingEvents = [];
+      }
     };
 
     const handleExternalDrawing = (drawingEvents) => {
@@ -328,7 +347,8 @@ const Crossword = (props) => {
     letters,
     props.image,
     writeModeSwitch,
-    coordGrid
+    coordGrid,
+    props.metadata.squares.grid
   ]);
 
   return (
@@ -339,18 +359,22 @@ const Crossword = (props) => {
         ref={backgroundInitializer}
         className="crossword"
       ></canvas>
-      {props.image && cursorPosition && squares && coordGrid && letters && (
-        <Grid
-          cursorPosition={cursorPosition}
-          letters={letters}
-          showCursor={mode === WRITE}
-          squares={props.metadata.squares}
-          width={props.image.width}
-          height={props.image.height}
-          writeMode={writeMode}
-          className="crossword"
-        />
-      )}
+      {props.image &&
+        cursorPosition &&
+        props.metadata.squares &&
+        coordGrid &&
+        letters && (
+          <Grid
+            cursorPosition={cursorPosition}
+            letters={letters}
+            showCursor={mode === WRITE}
+            squares={props.metadata.squares}
+            width={props.image.width}
+            height={props.image.height}
+            writeMode={writeMode}
+            className="crossword"
+          />
+        )}
       <canvas
         width={props.image.width}
         height={props.image.height}
