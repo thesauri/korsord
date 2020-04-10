@@ -9,7 +9,12 @@
 }
 
 .collapsed-sidebar {
+    background-color: white;
     width: 50px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    box-shadow: 1px 0 3px rgba(0, 0, 0, 0.3);
 }
 
 .sidebar-header {

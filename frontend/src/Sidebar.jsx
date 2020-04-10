@@ -7,14 +7,8 @@ const Sidebar = (props) => {
   const [hide, setHide] = useState(false);
   if (hide) {
     return (
-      <div className="sidebar collapsed-sidebar">
-        <Link to={""} style={{ textDecoration: "none" }}>
-          <div className="sidebar-header sidebar-section">
-            <h3 className="sidebar-header-text">F</h3>
-          </div>
-        </Link>
-        <div className="sidebar-section">
-          <h3>&#8203;</h3>
+      <div className="collapsed-sidebar">
+        <div className="sidebar-section" style={{marginTop: "10px"}}>
           <div className="section-list tools">
             <p
               className={props.mode === DRAW ? "active" : ""}
@@ -36,11 +30,9 @@ const Sidebar = (props) => {
             </p>
           </div>
         </div>
-        <div className="sidebar-section">
             <p className="clickable" onClick={() => setHide(!hide)} style={{ textAlign: "left", paddingLeft: "16px"}}>
               <i className="fas fa-angle-double-right" />
             </p>
-        </div>
       </div>
     );
   } else {
