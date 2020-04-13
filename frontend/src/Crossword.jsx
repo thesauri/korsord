@@ -371,7 +371,11 @@ const Crossword = (props) => {
       event.preventDefault();
     };
 
-    const handleTouchEnd = (event) => {};
+    const handleTouchEnd = (event) => {
+      if (isDrawing && event.touches.length === 0) {
+        stopDrawing();
+      }
+    };
 
     window.onkeydown = handleKey;
     canvas.onmousedown = handleMouseDown;
