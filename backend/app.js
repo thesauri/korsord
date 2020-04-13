@@ -1,5 +1,7 @@
 "use strict";
 
+require('dotenv').config({path: __dirname + '/.env'})
+
 const WebSocket = require("ws");
 const express = require("express");
 const http = require("http");
