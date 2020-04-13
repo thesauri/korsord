@@ -59,6 +59,30 @@ db.serialize(() => {
       if (err) console.error(err);
     }
   );
+
+  db.run(
+    "create table if not exists crosswords (" +
+      "crosswordId integer primary key," +
+      "newspaper text not null," + 
+      "publishedDate text not null," + 
+      "imageUrl text not null," + 
+      "metadataUrl text not null" +
+      ");",
+    (err) => {
+      if (err) console.error(err);
+    }
+  );
+
+  db.run(
+    "create table if not exists games (" +
+      "url text primary key," + 
+      "crossword integer not null," + 
+      "foreign key(crossword) references crosswords(crosswordId)" + 
+      ");",
+    (err) => {
+      if (err) console.error(err);
+    }
+  );
 });
 
 exports.addDrawEvent = (url, event) => {
