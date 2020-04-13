@@ -382,7 +382,7 @@ const Crossword = (props) => {
         ref={canvasInitializer}
         className="crossword"
       ></canvas>
-      {readyState === WebSocket.CLOSED ? <ConnectionErrorPopup /> : null}
+      {readyState === WebSocket.CLOSED && <ConnectionErrorPopup />}
       <Sidebar mode={mode} setMode={setMode} />
     </div>
   );

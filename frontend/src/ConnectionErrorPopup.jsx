@@ -14,6 +14,6 @@ const ErrorMessagePopup = (props) => (
 export const ConnectionErrorPopup = () => (
   <ErrorMessagePopup
     title="Anslutningen avbröts"
-    message="Prova att ladda om sidan pånytt."
+    message="Prova att ladda om sidan på nytt."
   />
 );
