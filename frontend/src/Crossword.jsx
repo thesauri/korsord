@@ -182,6 +182,13 @@ const Crossword = (props) => {
       return [x, y];
     };
 
+    const getTouchLocation = (event) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = event.touches[0].clientX - rect.left;
+      const y = event.touches[0].clientY - rect.top;
+      return [x, y];
+    };
+
     let isDrawing = false;
     let lastTo = [-1, -1];
 
@@ -342,8 +349,28 @@ const Crossword = (props) => {
     };
     onExternalWrite.current = handleExternalWrite;
 
-    const handleTouchStart = (event) => {};
-    const handleTouchMove = (event) => {};
+    const handleTouchStart = (event) => {
+      if (event.touches.length > 1) {
+        // Start panning
+        if (isDrawing) {
+          stopDrawing();
+        }
+        return;
+      }
+      const [x, y] = getTouchLocation(event);
+      startDrawing(x, y);
+    };
+
+    const handleTouchMove = (event) => {
+      if (event.touches.length > 1 || !isDrawing) {
+        // Panning
+        return;
+      }
+      const [x, y] = getTouchLocation(event);
+      draw(x, y);
+      event.preventDefault();
+    };
+
     const handleTouchEnd = (event) => {};
 
     window.onkeydown = handleKey;
