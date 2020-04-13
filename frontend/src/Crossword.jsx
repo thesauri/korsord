@@ -7,6 +7,7 @@ import { useWsApi } from "./wsApi";
 
 import Grid, { createLetterArray, createCoordinateGrid } from "./Grid.jsx";
 import Sidebar from "./Sidebar.jsx";
+import { ConnectionErrorPopup } from "./ConnectionErrorPopup";
 
 const ERASERSIZE = 8;
 const BRUSHSIZE = 1;
@@ -381,6 +382,7 @@ const Crossword = (props) => {
         ref={canvasInitializer}
         className="crossword"
       ></canvas>
+      {readyState === WebSocket.CLOSED && <ConnectionErrorPopup />}
       <Sidebar mode={mode} setMode={setMode} />
     </div>
   );
