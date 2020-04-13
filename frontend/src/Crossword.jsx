@@ -215,7 +215,48 @@ const Crossword = (props) => {
 
     let unsentDrawingEvents = [];
 
-    const startDrawing = (event) => {
+    const startDrawing = (x, y) => {
+      context.moveTo(x, y);
+      lastTo = [x, y];
+      context.beginPath();
+      isDrawing = true;
+      unsentDrawingEvents.push({
+        x,
+        y,
+        globalCompositeOperation: context.globalCompositeOperation,
+        lineWidth: context.lineWidth,
+        action: "START_DRAWING"
+      });
+    };
+
+    const draw = (x, y) => {
+      context.lineTo(x, y);
+      lastTo = [x, y];
+      context.stroke();
+      unsentDrawingEvents.push({
+        x,
+        y,
+        globalCompositeOperation: context.globalCompositeOperation,
+        lineWidth: context.lineWidth,
+        action: "DRAWING"
+      });
+    };
+
+    const stopDrawing = () => {
+      isDrawing = false;
+      if (batchedExternalDrawEvents.length > 0) {
+        flushExternalDrawingEvents();
+      }
+      if (unsentDrawingEvents.length > 0) {
+        sendEvent({
+          action: "DRAWING_EVENTS",
+          drawingEvents: unsentDrawingEvents
+        });
+        unsentDrawingEvents = [];
+      }
+    };
+
+    const handleMouseDown = (event) => {
       if (mode === WRITE) {
         const [mouseX, mouseY] = getMouseLocation(event);
 
@@ -234,35 +275,20 @@ const Crossword = (props) => {
         setCursorPosition([row, column]);
       } else {
         const [x, y] = getMouseLocation(event);
-        context.moveTo(x, y);
-        lastTo = [x, y];
-        context.beginPath();
-        isDrawing = true;
-        unsentDrawingEvents.push({
-          x,
-          y,
-          globalCompositeOperation: context.globalCompositeOperation,
-          lineWidth: context.lineWidth,
-          action: "START_DRAWING"
-        });
+        startDrawing(x, y);
       }
     };
 
-    const draw = (event) => {
+    const handleMouseMove = (event) => {
       if (!isDrawing) {
         return;
       }
       const [x, y] = getMouseLocation(event);
-      context.lineTo(x, y);
-      lastTo = [x, y];
-      context.stroke();
-      unsentDrawingEvents.push({
-        x,
-        y,
-        globalCompositeOperation: context.globalCompositeOperation,
-        lineWidth: context.lineWidth,
-        action: "DRAWING"
-      });
+      draw(x, y);
+    };
+
+    const handleMouseUp = () => {
+      stopDrawing();
     };
 
     let batchedExternalDrawEvents = [];
@@ -296,20 +322,6 @@ const Crossword = (props) => {
       batchedExternalDrawEvents = [];
     };
 
-    const stopDrawing = () => {
-      isDrawing = false;
-      if (batchedExternalDrawEvents.length > 0) {
-        flushExternalDrawingEvents();
-      }
-      if (unsentDrawingEvents.length > 0) {
-        sendEvent({
-          action: "DRAWING_EVENTS",
-          drawingEvents: unsentDrawingEvents
-        });
-        unsentDrawingEvents = [];
-      }
-    };
-
     const handleExternalDrawing = (drawingEvents) => {
       drawingEvents.forEach((drawingEvent) => {
         batchedExternalDrawEvents.push(drawingEvent);
@@ -330,10 +342,17 @@ const Crossword = (props) => {
     };
     onExternalWrite.current = handleExternalWrite;
 
+    const handleTouchStart = (event) => {};
+    const handleTouchMove = (event) => {};
+    const handleTouchEnd = (event) => {};
+
     window.onkeydown = handleKey;
-    canvas.onmousedown = startDrawing;
-    canvas.onmousemove = draw;
-    canvas.onmouseup = stopDrawing;
+    canvas.onmousedown = handleMouseDown;
+    canvas.onmousemove = handleMouseMove;
+    canvas.onmouseup = handleMouseUp;
+    canvas.ontouchstart = handleTouchStart;
+    canvas.ontouchmove = handleTouchMove;
+    canvas.ontouchend = handleTouchEnd;
   }, [
     canvas,
     context,
