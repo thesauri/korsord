@@ -4,7 +4,7 @@ import "./ConnectionErrorPopup.css";
 const ErrorMessagePopup = (props) => (
   <div className="dim-background">
     <div className="error-popup">
-      <i class="fas fa-exclamation-triangle fa-3x"></i>
+      <i className="fa fa-exclamation-triangle fa-3x"></i>
       <p className="error-header">{props.title}</p>
       <p className="error-message">{props.message}</p>
     </div>
