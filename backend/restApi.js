@@ -22,21 +22,11 @@ router.use(jsonParser);
 
 router.post("/crossword", (req, res) => {
   const crossword = req.body;
-  // If ADMIN_TOKEN is set (via command line), use it
-  if (process.env.ADMIN_TOKEN) {
-    if (req.body.adminToken !== process.env.ADMIN_TOKEN) {
-      res.status = 401;
-      res.send("Access denied");
-      return;
-    }
-  } 
-  // Otherwise ignore it and use the one defined in the .env file
-  else {
-      if (req.body.adminToken !== process.env.REACT_APP_ADMIN_TOKEN) {
-        res.status = 401;
-        res.send("Access denied");
-        return;
-      }
+  // prioritize admin token given via command line
+  if ((process.env.ADMIN_TOKEN || process.env.REACT_APP_ADMIN_TOKEN) !== req.body.adminToken) {
+    res.status = 401;
+    res.send("Access denied\n");
+    return;
   }
   addCrossword(crossword, (err) => {
     if (err) {
