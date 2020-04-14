@@ -24,16 +24,16 @@ router.post("/crossword", (req, res) => {
   const crossword = req.body;
   if (req.body.adminToken !== process.env.ADMIN_TOKEN) {
     res.status = 401;
-    res.send("Access denied");
+    res.send("Access denied\n");
     return;
   }
   addCrossword(crossword, (err) => {
     if (err) {
       res.status = 400;
-      res.send(`Unable to add crossword: ${err}`);
+      res.send(`Unable to add crossword: ${err}\n`);
       return;
     }
-    const message = `Crossword ${crossword.newspaper} added`;
+    const message = `Crossword ${crossword.newspaper} added\n`;
     console.log(message);
     res.send(message);
   });
@@ -86,7 +86,7 @@ router.post("/game", (req, res) => {
         `POST /game: Unable to create game ${gameId} for crossword ${crosswordId}`
       );
       res.status = 400;
-      res.send("Game creation failed");
+      res.send("Game creation failed\n");
       return;
     }
     const response = {

@@ -38,8 +38,12 @@ First, transfer the crossword image file and the associated square metadata file
 
 Then, do a POST request to `/api/crossword`:
 
-```
-curl -X POST backendurl.tld:port/api/crossword -H "Content-Type: application/json" --data '{ "newspaper": "HBL", "publishedDate": "2020-04-03", "imageUrl": "uploads/blablabla.jpg", "metadataUrl": "uploads/blablabla.json", "adminToken": "secret here" }'
+``` bash
+# Add one of the example crosswords like this
+curl -X POST localhost:8080/api/crossword -H "Content-Type: application/json" --data '{ "newspaper": "HBL", "publishedDate": "2020-04-03", "imageUrl": "uploads/2020-03-27/crossword.jpg", "metadataUrl": "uploads/2020-03-27/metadata.json", "adminToken": "simple_example_token" }'
 ```
 
 `adminToken` is an access token that is set according to the `ADMIN_TOKEN` environment variable on the server.
+
+Note that the backend has to be running when when adding crosswords, playing etc.
+Either define the `ADMIN_TOKEN` in the command line with `ADMIN_TOKEN=my-token yarn start` or by changing it in the .env file file in the backend root directory. 
