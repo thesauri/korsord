@@ -209,6 +209,13 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
       return [x, y];
     };
 
+    const getTouchLocation = (event: TouchEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = event.touches[0].clientX - rect.left;
+      const y = event.touches[0].clientY - rect.top;
+      return [x, y];
+    };
+
     let isDrawing = false;
     let lastTo = [-1, -1];
 
@@ -242,7 +249,49 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
 
     let unsentDrawingEvents: DrawingEvent[] = [];
 
-    const startDrawing = (event: MouseEvent) => {
+    const startDrawing = (x: number, y: number) => {
+      context.moveTo(x, y);
+      lastTo = [x, y];
+      context.beginPath();
+      isDrawing = true;
+      unsentDrawingEvents.push({
+        x,
+        y,
+        globalCompositeOperation: context.globalCompositeOperation,
+        lineWidth: context.lineWidth,
+        action: "START_DRAWING"
+      });
+    };
+
+    const draw = (x: number, y: number) => {
+      context.lineTo(x, y);
+      lastTo = [x, y];
+      context.stroke();
+      unsentDrawingEvents.push({
+        x,
+        y,
+        globalCompositeOperation: context.globalCompositeOperation,
+        lineWidth: context.lineWidth,
+        action: "DRAWING"
+      });
+    };
+
+    const stopDrawing = () => {
+      isDrawing = false;
+      if (batchedExternalDrawEvents.length > 0) {
+        flushExternalDrawingEvents();
+      }
+      if (unsentDrawingEvents.length > 0) {
+        // @ts-ignore
+        sendEvent({
+          action: "DRAWING_EVENTS",
+          drawingEvents: unsentDrawingEvents
+        });
+        unsentDrawingEvents = [];
+      }
+    };
+
+    const handleMouseDown = (event: MouseEvent) => {
       if (mode === EditMode.WRITE) {
         const [mouseX, mouseY] = getMouseLocation(event);
 
@@ -265,35 +314,20 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
         setCursorPosition([row, column]);
       } else {
         const [x, y] = getMouseLocation(event);
-        context.moveTo(x, y);
-        lastTo = [x, y];
-        context.beginPath();
-        isDrawing = true;
-        unsentDrawingEvents.push({
-          x,
-          y,
-          globalCompositeOperation: context.globalCompositeOperation,
-          lineWidth: context.lineWidth,
-          action: "START_DRAWING"
-        });
+        startDrawing(x, y);
       }
     };
 
-    const draw = (event: MouseEvent) => {
+    const handleMouseMove = (event: MouseEvent) => {
       if (!isDrawing) {
         return;
       }
       const [x, y] = getMouseLocation(event);
-      context.lineTo(x, y);
-      lastTo = [x, y];
-      context.stroke();
-      unsentDrawingEvents.push({
-        x,
-        y,
-        globalCompositeOperation: context.globalCompositeOperation,
-        lineWidth: context.lineWidth,
-        action: "DRAWING"
-      });
+      draw(x, y);
+    };
+
+    const handleMouseUp = () => {
+      stopDrawing();
     };
 
     let batchedExternalDrawEvents: DrawingEvent[] = [];
@@ -327,24 +361,9 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
       batchedExternalDrawEvents = [];
     };
 
-    const stopDrawing = () => {
-      isDrawing = false;
-      if (batchedExternalDrawEvents.length > 0) {
-        flushExternalDrawingEvents();
-      }
-      if (unsentDrawingEvents.length > 0) {
-        // @ts-ignore
-        sendEvent({
-          action: "DRAWING_EVENTS",
-          drawingEvents: unsentDrawingEvents
-        });
-        unsentDrawingEvents = [];
-      }
-    };
-
     const handleExternalDrawing = (drawingEvents: DrawingEvent[]) => {
-      drawingEvents.forEach((e) => {
-        batchedExternalDrawEvents.push(e);
+      drawingEvents.forEach((drawingEvent) => {
+        batchedExternalDrawEvents.push(drawingEvent);
       });
       if (!isDrawing) {
         flushExternalDrawingEvents();
@@ -364,10 +383,41 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
     // @ts-ignore
     onExternalWrite.current = handleExternalWrite;
 
+    const handleTouchStart = (event: TouchEvent) => {
+      if (event.touches.length > 1) {
+        // Start panning
+        if (isDrawing) {
+          stopDrawing();
+        }
+        return;
+      }
+      const [x, y] = getTouchLocation(event);
+      startDrawing(x, y);
+    };
+
+    const handleTouchMove = (event: TouchEvent) => {
+      if (event.touches.length > 1 || !isDrawing) {
+        // Panning
+        return;
+      }
+      const [x, y] = getTouchLocation(event);
+      draw(x, y);
+      event.preventDefault();
+    };
+
+    const handleTouchEnd = (event: TouchEvent) => {
+      if (isDrawing && event.touches.length === 0) {
+        stopDrawing();
+      }
+    };
+
     window.onkeydown = handleKey;
-    canvas.onmousedown = (event) => startDrawing(event);
-    canvas.onmousemove = draw;
-    canvas.onmouseup = stopDrawing;
+    canvas.onmousedown = handleMouseDown;
+    canvas.onmousemove = handleMouseMove;
+    canvas.onmouseup = handleMouseUp;
+    canvas.ontouchstart = handleTouchStart;
+    canvas.ontouchmove = handleTouchMove;
+    canvas.ontouchend = handleTouchEnd;
   }, [
     canvas,
     context,
