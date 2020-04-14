@@ -130,7 +130,7 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
         return true;
       } else if (key === "Tab") {
         // division by two because Object.keys return keys *and* values for enums
-        setWriteMode(((writeMode + 1) % Object.keys(WriteMode).length) / 2);
+        setWriteMode((writeMode + 1) % (Object.keys(WriteMode).length / 2));
         return true;
       }
 
