@@ -41,7 +41,7 @@ interface CrosswordProps {
   image: HTMLImageElement;
 }
 
-interface DrawingEvent {
+export interface DrawingEvent {
   x: number;
   y: number;
   globalCompositeOperation: string;
@@ -147,7 +147,6 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
         newLetters[coordGrid[row][column]].letter = newValue;
         setLetters(newLetters);
 
-        // @ts-ignore
         sendEvent({
           action: "WRITE_EVENT",
           event: { letter: newValue, row, column }
@@ -197,7 +196,6 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
   }, [context, mode, props.image.width]);
 
   useEffect(() => {
-    // @ts-ignore
     if (!canvas || !context || readyState !== WebSocket.OPEN) {
       return;
     }
@@ -282,7 +280,6 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
         flushExternalDrawingEvents();
       }
       if (unsentDrawingEvents.length > 0) {
-        // @ts-ignore
         sendEvent({
           action: "DRAWING_EVENTS",
           drawingEvents: unsentDrawingEvents
@@ -370,7 +367,6 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
       }
     };
 
-    // @ts-ignore
     onExternalDraw.current = handleExternalDrawing;
 
     const handleExternalWrite = (writeHistory: LetterType[]) => {
@@ -380,7 +376,6 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
       });
       setLetters(newLetters);
     };
-    // @ts-ignore
     onExternalWrite.current = handleExternalWrite;
 
     const handleTouchStart = (event: TouchEvent) => {
@@ -465,7 +460,6 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
         className="crossword"
       ></canvas>
       {
-        // @ts-ignore
         readyState === WebSocket.CLOSED && <ConnectionErrorPopup />
       }
       <Sidebar mode={mode} setMode={setMode} />
