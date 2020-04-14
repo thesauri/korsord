@@ -252,7 +252,6 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
     const startDrawing = (x: number, y: number) => {
       context.moveTo(x, y);
       lastTo = [x, y];
-      context.beginPath();
       isDrawing = true;
       unsentDrawingEvents.push({
         x,
@@ -384,29 +383,32 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
     onExternalWrite.current = handleExternalWrite;
 
     const handleTouchStart = (event: TouchEvent) => {
-      if (event.touches.length > 1) {
-        // Start panning
+      if (event.targetTouches.length === 1) {
+        const [x, y] = getTouchLocation(event);
+        startDrawing(x, y);
+      } else {
         if (isDrawing) {
           stopDrawing();
         }
-        return;
       }
-      const [x, y] = getTouchLocation(event);
-      startDrawing(x, y);
     };
 
     const handleTouchMove = (event: TouchEvent) => {
-      if (event.touches.length > 1 || !isDrawing) {
-        // Panning
-        return;
+      if (event.targetTouches.length === 1 && isDrawing) {
+        const [x, y] = getTouchLocation(event);
+        draw(x, y);
+        // Firefox does not support the CSS touch-action: pinch-zoom property, 
+        // so we do preventDefault() instead
+        // @ts-ignore
+        if (typeof InstallTrigger !== 'undefined') { // Check if firefox v1.0 <
+          // console.log("Firefox!")
+          event.preventDefault();
+        }
       }
-      const [x, y] = getTouchLocation(event);
-      draw(x, y);
-      event.preventDefault();
     };
 
     const handleTouchEnd = (event: TouchEvent) => {
-      if (isDrawing && event.touches.length === 0) {
+      if (isDrawing && event.targetTouches.length === 0) {
         stopDrawing();
       }
     };
@@ -415,9 +417,9 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
     canvas.onmousedown = handleMouseDown;
     canvas.onmousemove = handleMouseMove;
     canvas.onmouseup = handleMouseUp;
-    canvas.ontouchstart = handleTouchStart;
-    canvas.ontouchmove = handleTouchMove;
-    canvas.ontouchend = handleTouchEnd;
+    canvas.addEventListener("touchstart", handleTouchStart)
+    canvas.addEventListener("touchmove", handleTouchMove)
+    canvas.addEventListener("touchend", handleTouchEnd)
   }, [
     canvas,
     context,
@@ -462,7 +464,7 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
         ref={canvasRef}
         width={props.image.width}
         height={props.image.height}
-        className="crossword"
+        className="crossword draw-layer"
       ></canvas>
       {
         // @ts-ignore
