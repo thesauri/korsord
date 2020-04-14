@@ -5,7 +5,13 @@ import { useState } from "react";
 import "./Crossword.css";
 import { useWsApi } from "./wsApi";
 
-import Grid, { createLetterArray, createCoordinateGrid, Square, LetterType, Vec2 } from "./Grid";
+import Grid, {
+  createLetterArray,
+  createCoordinateGrid,
+  Square,
+  LetterType,
+  Vec2
+} from "./Grid";
 import Sidebar from "./Sidebar";
 import { ConnectionErrorPopup } from "./ConnectionErrorPopup";
 
@@ -15,23 +21,23 @@ const BRUSHSIZE = 1;
 export enum EditMode {
   DRAW = 0,
   WRITE = 1,
-  ERASE = 2,
+  ERASE = 2
 }
 
 export enum WriteMode {
   STATIONARY = 0,
   RIGHT = 1,
-  DOWN = 2,
+  DOWN = 2
 }
 
 interface CrosswordProps {
   url: string;
   metadata: {
     squares: {
-      medianLen: number,
-      grid: Square[][],
-    }
-  }
+      medianLen: number;
+      grid: Square[][];
+    };
+  };
   image: HTMLImageElement;
 }
 
@@ -76,8 +82,8 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
 
   const canvasRef = useCallback((node) => {
     if (node !== null) {
-      setCanvas(node)
-      setContext(node.getContext("2d"))
+      setCanvas(node);
+      setContext(node.getContext("2d"));
     }
   }, []);
 
@@ -124,7 +130,7 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
         return true;
       } else if (key === "Tab") {
         // division by two because Object.keys return keys *and* values for enums
-        setWriteMode((writeMode + 1) % Object.keys(WriteMode).length / 2);
+        setWriteMode(((writeMode + 1) % Object.keys(WriteMode).length) / 2);
         return true;
       }
 
@@ -240,16 +246,20 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
       if (mode === EditMode.WRITE) {
         const [mouseX, mouseY] = getMouseLocation(event);
 
-        const row = props.metadata.squares.grid.findIndex((squareRow: Square[]) => {
-          const [, y, , h] = squareRow[0].c;
-          return mouseY >= y && mouseY <= y + h;
-        });
+        const row = props.metadata.squares.grid.findIndex(
+          (squareRow: Square[]) => {
+            const [, y, , h] = squareRow[0].c;
+            return mouseY >= y && mouseY <= y + h;
+          }
+        );
         if (row === -1) return;
 
-        const column = props.metadata.squares.grid[row].findIndex((square: Square) => {
-          const [x, , w] = square.c;
-          return mouseX >= x && mouseX <= x + w;
-        });
+        const column = props.metadata.squares.grid[row].findIndex(
+          (square: Square) => {
+            const [x, , w] = square.c;
+            return mouseX >= x && mouseX <= x + w;
+          }
+        );
         if (column === -1) return;
 
         setCursorPosition([row, column]);
@@ -355,7 +365,7 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
     onExternalWrite.current = handleExternalWrite;
 
     window.onkeydown = handleKey;
-    canvas.onmousedown = (event) => startDrawing(event)
+    canvas.onmousedown = (event) => startDrawing(event);
     canvas.onmousemove = draw;
     canvas.onmouseup = stopDrawing;
   }, [

@@ -6,20 +6,29 @@ import { WriteMode } from "./Crossword";
 
 // Define array type that only accepts a specified number of elements
 // https://stackoverflow.com/a/59906630
-type ArrayLengthMutationKeys = 'splice' | 'push' | 'pop' | 'shift' | 'unshift' | number
-type ArrayItems<T extends Array<any>> = T extends Array<infer TItems> ? TItems : never
-type FixedLengthArray<T extends any[]> =
-  Pick<T, Exclude<keyof T, ArrayLengthMutationKeys>>
-  & { [Symbol.iterator]: () => IterableIterator<ArrayItems<T>> }
+type ArrayLengthMutationKeys =
+  | "splice"
+  | "push"
+  | "pop"
+  | "shift"
+  | "unshift"
+  | number;
+type ArrayItems<T extends Array<any>> = T extends Array<infer TItems>
+  ? TItems
+  : never;
+type FixedLengthArray<T extends any[]> = Pick<
+  T,
+  Exclude<keyof T, ArrayLengthMutationKeys>
+> & { [Symbol.iterator]: () => IterableIterator<ArrayItems<T>> };
 
-export type Vec2 = FixedLengthArray<[number, number]>
-export type Vec3 = FixedLengthArray<[number, number, number]>
-export type Vec4 = FixedLengthArray<[number, number, number, number]>
+export type Vec2 = FixedLengthArray<[number, number]>;
+export type Vec3 = FixedLengthArray<[number, number, number]>;
+export type Vec4 = FixedLengthArray<[number, number, number, number]>;
 
 interface GridProps {
   squares: {
-    medianLen: number,
-    grid: Square[][],
+    medianLen: number;
+    grid: Square[][];
   };
   letters: LetterType[];
   cursorPosition: Vec2;
@@ -32,8 +41,12 @@ interface GridProps {
 const Grid: React.FC<GridProps> = (props) => {
   const [letterCanvas, setLetterCanvas] = useState<HTMLCanvasElement>();
   const [cursorCanvas, setCursorCanvas] = useState<HTMLCanvasElement>();
-  const [letterContext, setLetterContext] = useState<CanvasRenderingContext2D>();
-  const [cursorContext, setCursorContext] = useState<CanvasRenderingContext2D>();
+  const [letterContext, setLetterContext] = useState<
+    CanvasRenderingContext2D
+  >();
+  const [cursorContext, setCursorContext] = useState<
+    CanvasRenderingContext2D
+  >();
 
   const letterCanvasInitializer = useCallback(
     (canvas) => {
@@ -144,7 +157,7 @@ const Grid: React.FC<GridProps> = (props) => {
           );
         }
       } else {
-        console.log("Could not find letter context.")
+        console.log("Could not find letter context.");
       }
     });
   }, [props.letters, letterContext, letterReady, letterCanvas, props.squares]);
@@ -170,9 +183,9 @@ const Grid: React.FC<GridProps> = (props) => {
 export default Grid;
 
 export type Square = {
-  c: Vec4, // [x, y, width, height]
-  t: 0 | 1 // fillable or not
-}
+  c: Vec4; // [x, y, width, height]
+  t: 0 | 1; // fillable or not
+};
 
 export const createCoordinateGrid = (squares: Square[][]): number[][] => {
   const grid: number[][] = [];
@@ -187,7 +200,7 @@ export const createCoordinateGrid = (squares: Square[][]): number[][] => {
   return grid;
 };
 
-export type LetterType = { letter: string, row: number, column: number }
+export type LetterType = { letter: string; row: number; column: number };
 
 export const createLetterArray = (squares: Square[][]) => {
   const arr: LetterType[] = [];
