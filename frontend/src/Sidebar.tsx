@@ -1,9 +1,14 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "./Sidebar.css";
-import { DRAW, WRITE, ERASE } from "./Crossword.jsx";
+import { EditMode } from "./Crossword";
 
-const Sidebar = (props) => {
+interface SidebarProps {
+  mode: EditMode;
+  setMode: (arg: EditMode) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = (props) => {
   const [hide, setHide] = useState(false);
   if (hide) {
     return (
@@ -11,20 +16,20 @@ const Sidebar = (props) => {
         <div className="sidebar-section" style={{ marginTop: "10px" }}>
           <div className="section-list tools">
             <p
-              className={props.mode === DRAW ? "active" : ""}
-              onClick={() => props.setMode(DRAW)}
+              className={props.mode === EditMode.DRAW ? "active" : ""}
+              onClick={() => props.setMode(EditMode.DRAW)}
             >
               <i className="fa fa-pencil"></i>
             </p>
             <p
-              className={props.mode === ERASE ? "active" : ""}
-              onClick={() => props.setMode(ERASE)}
+              className={props.mode === EditMode.ERASE ? "active" : ""}
+              onClick={() => props.setMode(EditMode.ERASE)}
             >
               <i className="fa fa-eraser" id="erase"></i>
             </p>
             <p
-              className={props.mode === WRITE ? "active" : ""}
-              onClick={() => props.setMode(WRITE)}
+              className={props.mode === EditMode.WRITE ? "active" : ""}
+              onClick={() => props.setMode(EditMode.WRITE)}
             >
               <i className="fa fa-font" id="write"></i>
             </p>
@@ -51,25 +56,25 @@ const Sidebar = (props) => {
           <h3>Verktyg</h3>
           <div className="section-list tools">
             <p
-              className={props.mode === DRAW ? "active" : ""}
-              onClick={() => props.setMode(DRAW)}
+              className={props.mode === EditMode.DRAW ? "active" : ""}
+              onClick={() => props.setMode(EditMode.DRAW)}
             >
               <i className="fa fa-pencil"></i>
               Penna (B)
             </p>
             <p
-              className={props.mode === ERASE ? "active" : ""}
-              onClick={() => props.setMode(ERASE)}
+              className={props.mode === EditMode.ERASE ? "active" : ""}
+              onClick={() => props.setMode(EditMode.ERASE)}
             >
               <i className="fa fa-eraser" id="erase"></i>
               Suddgummi (E)
             </p>
             <p
-              className={props.mode === WRITE ? "active" : ""}
-              onClick={() => props.setMode(WRITE)}
+              className={props.mode === EditMode.WRITE ? "active" : ""}
+              onClick={() => props.setMode(EditMode.WRITE)}
             >
               <i className="fa fa-font" id="write"></i>
-              Text {props.mode === WRITE ? "(ESC to exit)" : "(Enter)"}
+              Text {props.mode === EditMode.WRITE ? "(ESC to exit)" : "(Enter)"}
             </p>
           </div>
         </div>
