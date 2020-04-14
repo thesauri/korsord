@@ -8,6 +8,11 @@ In the backend directory, install the dependencies using `yarn` and run using `y
 
 In the frontend directory, install the dependencies using `yarn` and run using `yarn start`. View the page on `http://localhost:3000`.
 
+### Formatting
+
+We use [prettier](https://prettier.io/) to format our code. Install it with
+`yarn global add prettier`. Run `git config --local core.hooksPath .githooks/` to add a pre-commit hook that runs prettier before committing.
+
 ## Deployment
 
 Build the frontend using `yarn build`. The built files will appear in `frontend/build/`.
