@@ -383,32 +383,29 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
     onExternalWrite.current = handleExternalWrite;
 
     const handleTouchStart = (event: TouchEvent) => {
-      if (event.targetTouches.length === 1) {
-        const [x, y] = getTouchLocation(event);
-        startDrawing(x, y);
-      } else {
+      if (event.touches.length > 1) {
+        // Start panning
         if (isDrawing) {
           stopDrawing();
         }
+        return;
       }
+      const [x, y] = getTouchLocation(event);
+      startDrawing(x, y);
     };
 
     const handleTouchMove = (event: TouchEvent) => {
-      if (event.targetTouches.length === 1 && isDrawing) {
-        const [x, y] = getTouchLocation(event);
-        draw(x, y);
-        // Firefox does not support the CSS touch-action: pinch-zoom property, 
-        // so we do preventDefault() instead
-        // @ts-ignore
-        if (typeof InstallTrigger !== 'undefined') { // Check if firefox v1.0 <
-          // console.log("Firefox!")
-          event.preventDefault();
-        }
+      if (event.touches.length > 1 || !isDrawing) {
+        // Panning
+        return;
       }
+      const [x, y] = getTouchLocation(event);
+      draw(x, y);
+      event.preventDefault();
     };
 
     const handleTouchEnd = (event: TouchEvent) => {
-      if (isDrawing && event.targetTouches.length === 0) {
+      if (isDrawing && event.touches.length === 0) {
         stopDrawing();
       }
     };
@@ -417,9 +414,15 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
     canvas.onmousedown = handleMouseDown;
     canvas.onmousemove = handleMouseMove;
     canvas.onmouseup = handleMouseUp;
-    canvas.addEventListener("touchstart", handleTouchStart)
-    canvas.addEventListener("touchmove", handleTouchMove)
-    canvas.addEventListener("touchend", handleTouchEnd)
+    canvas.addEventListener("touchstart", handleTouchStart);
+    canvas.addEventListener("touchmove", handleTouchMove);
+    canvas.addEventListener("touchend", handleTouchEnd);
+    
+    return function cleanup() {
+      canvas.removeEventListener("touchstart", handleTouchStart);
+      canvas.removeEventListener("touchmove", handleTouchMove);
+      canvas.removeEventListener("touchend", handleTouchEnd);
+    }
   }, [
     canvas,
     context,
