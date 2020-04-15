@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import    Crossword from "./Crossword";
-import "./App.css";
+import    "./App.css";
 import { useParams, useHistory } from "react-router-dom";
 import { config } from "./Constants";
 import { getCrosswordForGame, getMetadata } from "./restApi";
