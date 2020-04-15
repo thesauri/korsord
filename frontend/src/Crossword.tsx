@@ -417,12 +417,12 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
     canvas.addEventListener("touchstart", handleTouchStart);
     canvas.addEventListener("touchmove", handleTouchMove);
     canvas.addEventListener("touchend", handleTouchEnd);
-    
+
     return function cleanup() {
       canvas.removeEventListener("touchstart", handleTouchStart);
       canvas.removeEventListener("touchmove", handleTouchMove);
       canvas.removeEventListener("touchend", handleTouchEnd);
-    }
+    };
   }, [
     canvas,
     context,
