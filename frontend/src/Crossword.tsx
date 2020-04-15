@@ -464,10 +464,11 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
           />
         )}
       <canvas
+        id="draw-layer"
         ref={canvasRef}
         width={props.image.width}
         height={props.image.height}
-        className="crossword draw-layer"
+        className="crossword"
       ></canvas>
       {
         // @ts-ignore
