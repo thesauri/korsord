@@ -418,7 +418,7 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
     canvas.addEventListener("touchmove", handleTouchMove);
     canvas.addEventListener("touchend", handleTouchEnd);
 
-    return function cleanup() {
+    return () => {
       canvas.removeEventListener("touchstart", handleTouchStart);
       canvas.removeEventListener("touchmove", handleTouchMove);
       canvas.removeEventListener("touchend", handleTouchEnd);
