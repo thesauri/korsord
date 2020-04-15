@@ -14,10 +14,12 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
 
-    # Install prettier
+    # Install prettier globally
+    # (Installing globally avoids installing all project dependencies)
     - uses: borales/actions-yarn@v2.0.0
       with:
-          cmd: global add prettier
-
-    - name: Check code style with Prettier
-      run: cd $GITHUB_WORKSPACE && prettier --check "{backend,frontend,types}/src/**/*{ts,tsx,js,jsx,css}"
+          cmd: global add prettier@2.0.4
+  
+    - uses: borales/actions-yarn@v2.0.0
+      with:
+          cmd: lint
