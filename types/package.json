@@ -1,0 +1,11 @@
+{
+  "name": "types",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {},
+  "devDependencies": {
+    "ts-loader": "^6.2.2",
+    "typescript": "^3.8.3"
+  },
+  "types": "dist/*"
+}
