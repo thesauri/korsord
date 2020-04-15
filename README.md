@@ -4,21 +4,20 @@ Solve crosswords collaboratively.
 
 ## Development
 
-In the backend directory, install the dependencies using `yarn` and run using `yarn start`. Keep the backend running the background.
-
-In the frontend directory, install the dependencies using `yarn` and run using `yarn start`. View the page on `http://localhost:3000`.
+1. In the root directory, install the dependencies using `yarn`
+2. Run the migration scripts in `backend/migrations` individually in alphabetical order with `sqlite3 backend/app.db backend/migrations/migration_name.sql`
+3. Start the development servers using `yarn start`
+4. View the page `http://localhost:3000`
 
 ## Deployment
 
-Build the frontend using `yarn build`. The built files will appear in `frontend/build/`.
-
-The backend server acts as production server and serves static files from `../frontend/build`.
-
-Run it using `yarn start`. If desired, specify the server port using the environment variable `SERVER_PORT`.
+1. In the root directory, build the project with `yarn build`
+2. Run with `yarn start-production`
+3. If desired, configure the server port using the environment variable `SERVER_PORT` or specify the secret token for publishing crosswords as `ADMIN_TOKEN`. Do this by specifying them in `.env` or as environment variables.
 
 ## Stack overview
 
-The project consists of two parts: a frontend and a backend server. The frontend and backend communicate using WebSockets and all traffic passes through the backend (i.e., the clients do not communicate directly with each other).
+The project consists of two parts: a frontend and a backend server. The frontend and backend communicate using an REST API and WebSockets where all traffic passes through the backend (i.e., the clients do not communicate directly with each other).
 
 ### Frontend
 

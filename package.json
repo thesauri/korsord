@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend",
+    "types"
+  ],
+  "scripts": {
+    "build": "(cd types && tsc) && yarn workspace frontend build",
+    "start": "(cd types && tsc --watch) & yarn workspace frontend start & yarn workspace backend start",
+    "start-production": "yarn workspace backend start"
+  }
+}
