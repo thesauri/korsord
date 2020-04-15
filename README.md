@@ -5,8 +5,9 @@ Solve crosswords collaboratively.
 ## Development
 
 1. In the root directory, install the dependencies using `yarn`
-2. Start the development servers using `yarn start`
-3. View the page `http://localhost:3000`
+2. Run the migration scripts in `backend/migrations` individually in alphabetical order with `sqlite3 backend/app.db backend/migrations/migration_name.sql`
+3. Start the development servers using `yarn start`
+4. View the page `http://localhost:3000`
 
 ## Deployment
 
