@@ -252,7 +252,6 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
     const startDrawing = (x: number, y: number) => {
       context.moveTo(x, y);
       lastTo = [x, y];
-      context.beginPath();
       isDrawing = true;
       unsentDrawingEvents.push({
         x,
@@ -415,9 +414,15 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
     canvas.onmousedown = handleMouseDown;
     canvas.onmousemove = handleMouseMove;
     canvas.onmouseup = handleMouseUp;
-    canvas.ontouchstart = handleTouchStart;
-    canvas.ontouchmove = handleTouchMove;
-    canvas.ontouchend = handleTouchEnd;
+    canvas.addEventListener("touchstart", handleTouchStart);
+    canvas.addEventListener("touchmove", handleTouchMove);
+    canvas.addEventListener("touchend", handleTouchEnd);
+    
+    return function cleanup() {
+      canvas.removeEventListener("touchstart", handleTouchStart);
+      canvas.removeEventListener("touchmove", handleTouchMove);
+      canvas.removeEventListener("touchend", handleTouchEnd);
+    }
   }, [
     canvas,
     context,
@@ -459,6 +464,7 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
           />
         )}
       <canvas
+        id="draw-layer"
         ref={canvasRef}
         width={props.image.width}
         height={props.image.height}
