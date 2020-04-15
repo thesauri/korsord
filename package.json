@@ -9,6 +9,11 @@
     "backend": "yarn workspace backend",
     "build": "(cd types && tsc) && yarn workspace frontend build",
     "frontend": "yarn workspace frontend",
+    "format": "prettier --write '{backend,frontend,types}/src/**/*{ts,tsx,js,jsx,css}'",
+    "lint": "prettier --check '{backend,frontend,types}/src/**/*{ts,tsx,js,jsx,css}'",
     "types": "yarn workspace types"
+  },
+  "devDependencies": {
+    "prettier": "^2.0.4"
   }
 }
