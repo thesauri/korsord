@@ -14,8 +14,7 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
 
-    # Install prettier individually
-    # (This avoids installing all project dependencies)
+    # Install prettier by installing the project dependencies
     - uses: borales/actions-yarn@v2.0.0
       with:
           cmd: install
