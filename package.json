@@ -6,8 +6,14 @@
     "types"
   ],
   "scripts": {
+    "backend": "yarn workspace backend",
     "build": "(cd types && tsc) && yarn workspace frontend build",
-    "start": "(cd types && tsc --watch) & yarn workspace frontend start & yarn workspace backend start",
-    "start-production": "yarn workspace backend start"
+    "frontend": "yarn workspace frontend",
+    "format": "prettier --write '{backend,frontend,types}/src/**/*{ts,tsx,js,jsx,css}'",
+    "lint": "prettier --check '{backend,frontend,types}/src/**/*{ts,tsx,js,jsx,css}'",
+    "types": "yarn workspace types"
+  },
+  "devDependencies": {
+    "prettier": "^2.0.4"
   }
 }

@@ -1,3 +1,3 @@
 export interface ExampleType {
-  numbers: number[]
+  numbers: number[];
 }
