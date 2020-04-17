@@ -16,7 +16,6 @@ import Sidebar from "./Sidebar";
 import { ConnectionErrorPopup } from "./ConnectionErrorPopup";
 
 const ERASERSIZE = 8;
-const BRUSHSIZE = 1;
 
 export enum EditMode {
   DRAW = 0,
@@ -63,6 +62,7 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
   const [writeMode, setWriteMode] = useState<WriteMode>(WriteMode.STATIONARY);
   const [coordGrid, setCoordGrid] = useState<number[][]>([]);
   const [letters, setLetters] = useState<LetterType[]>([]); //createLetterArray());
+  const [brushSize, setBrushSize] = useState(0.5);
 
   useEffect(() => {
     setCursorPosition([0, 0]);
@@ -182,10 +182,20 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
   );
 
   useEffect(() => {
+    if (brushSize > 0) {
+      if (context && mode === EditMode.DRAW) {
+        context.lineWidth = (props.image.width / 1200.0) * brushSize;
+      }
+    } else {
+      setBrushSize(0.25);
+    }
+  }, [brushSize]);
+
+  useEffect(() => {
     if (context) {
       if (mode === EditMode.DRAW) {
         context.globalCompositeOperation = "source-over";
-        context.lineWidth = (props.image.width / 1200.0) * BRUSHSIZE;
+        context.lineWidth = (props.image.width / 1200.0) * brushSize;
       } else if (mode === EditMode.ERASE) {
         context.globalCompositeOperation = "destination-out";
         context.lineWidth = (props.image.width / 1200.0) * ERASERSIZE;
@@ -250,6 +260,7 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
     let unsentDrawingEvents: DrawingEvent[] = [];
 
     const startDrawing = (x: number, y: number) => {
+      context.beginPath();
       context.moveTo(x, y);
       lastTo = [x, y];
       isDrawing = true;
@@ -475,7 +486,12 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
         // @ts-ignore
         readyState === WebSocket.CLOSED && <ConnectionErrorPopup />
       }
-      <Sidebar mode={mode} setMode={setMode} />
+      <Sidebar
+        mode={mode}
+        setMode={setMode}
+        brushSize={brushSize}
+        setBrushSize={setBrushSize}
+      />
     </div>
   );
 };

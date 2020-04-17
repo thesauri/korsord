@@ -2,7 +2,10 @@
   "compilerOptions": {
     "rootDir": "src/",
     "outDir": "dist/",
-    "declaration": true
+    "declaration": true,
+    // Skips checking errors in included libraries, for example, react
+    // https://www.typescriptlang.org/docs/handbook/compiler-options.html
+    "skipLibCheck": true
   },
   "include": ["src/"]
 }
