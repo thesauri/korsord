@@ -277,6 +277,7 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
 
     const stopDrawing = () => {
       isDrawing = false;
+      context.beginPath();
       if (batchedExternalDrawEvents.length > 0) {
         flushExternalDrawingEvents();
       }
