@@ -1,12 +1,102 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+
+import styled from "styled-components";
+
 import "./Sidebar.css";
+
 import { EditMode } from "./Crossword";
 
 interface SidebarProps {
   mode: EditMode;
   setMode: (arg: EditMode) => void;
+  brushSize: number;
+  setBrushSize: (arg: number) => void;
 }
+
+const InputRangeWithLabelDiv = styled.div`
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  margin: 0 16px;
+  label {
+    color: var(--dark-gray);
+    font-weight: 600;
+    cursor: pointer;
+  }
+`;
+
+const InputWrapper = styled.div`
+  display: flex;
+  margin-top: 5px;
+  input[type="number"] {
+    width: 25%;
+    min-width: 40px;
+  }
+  input[type="range"] {
+    width: 50%;
+    margin: auto;
+  }
+`;
+
+interface RangeWithLabelProps {
+  label: string;
+  value: number;
+  updateValue: (arg: number) => void;
+  min?: number;
+  max?: number;
+}
+
+const InputRangeWithLabel: React.FC<RangeWithLabelProps> = (props) => {
+  const [textInputValue, setTextInputValue] = useState(props.value);
+
+  useEffect(() => {
+    setTextInputValue(props.value);
+  }, [props.value]);
+
+  const min = Math.floor(props.min || 0);
+  const max = Math.ceil(props.max || 8);
+  const stepSize = props.value <= 1 ? 0.25 : props.value <= 2.5 ? 0.5 : 1;
+
+  const updateValue = (val: string) => {
+    props.updateValue(Math.max(min, parseFloat(val)));
+  };
+
+  return (
+    <InputRangeWithLabelDiv>
+      <label>
+        {props.label}
+        <InputWrapper>
+          <input
+            type="number"
+            value={textInputValue}
+            min={min}
+            max={max}
+            step={stepSize}
+            onChange={(e) => {
+              if (parseFloat(e.target.value) !== undefined) {
+                // if input string is a valid number, update it
+                updateValue(e.target.value);
+              }
+              setTextInputValue(parseFloat(e.target.value));
+            }}
+            onBlur={(e) => {
+              if (parseFloat(e.target.value)) updateValue(e.target.value);
+            }}
+          />
+          <input
+            type="range"
+            min={min}
+            max={max}
+            step={stepSize}
+            value={props.value}
+            onChange={(e) => updateValue(e.target.value)}
+          />
+        </InputWrapper>
+      </label>
+    </InputRangeWithLabelDiv>
+  );
+};
 
 const Sidebar: React.FC<SidebarProps> = (props) => {
   const [hide, setHide] = useState(false);
@@ -76,6 +166,11 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
               <i className="fa fa-font" id="write"></i>
               Text {props.mode === EditMode.WRITE ? "(ESC to exit)" : "(Enter)"}
             </p>
+            <InputRangeWithLabel
+              label={"Linjebredd"}
+              value={props.brushSize}
+              updateValue={props.setBrushSize}
+            />
           </div>
         </div>
         <div className="sidebar-section">
