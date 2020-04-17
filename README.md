@@ -14,7 +14,7 @@ Solve crosswords collaboratively.
 ## Deployment
 
 1. In the root directory, build the project with `yarn build`
-2. Run with `yarn start-production`
+2. Run with `yarn backend start`
 3. If desired, configure the server port using the environment variable `SERVER_PORT` or specify the secret token for publishing crosswords as `ADMIN_TOKEN`. Do this by specifying them in `.env` or as environment variables.
 
 ## Stack overview
