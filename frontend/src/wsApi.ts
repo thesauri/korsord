@@ -1,19 +1,38 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, MutableRefObject } from "react";
 import { config } from "./Constants";
+import { LetterType } from "./Grid";
+import { DrawingEvent } from "./Crossword";
 
-export const useWsApi = (url) => {
-  const socket = useRef(null);
-  const onExternalDraw = useRef(() => {
-    console.error("No draw function set");
-  });
-  const onExternalWrite = useRef(() => {
-    console.error("No write function set");
-  });
-  const [readyState, setReadyState] = useState("CONNECTING");
+type EventTypes = "DRAWING_EVENTS" | "DRAWING_HISTORY" | "WRITE_HISTORY";
+
+interface WebSocketPayload {
+  action: EventTypes;
+  event?: LetterType;
+  drawingEvents?: DrawingEvent[];
+  // TODO: implement when converting app.js to typescript
+  drawingHistory?: any;
+  writeHistory?: any;
+}
+
+export const useWsApi = (
+  url: string
+): [
+  number,
+  MutableRefObject<(drawingEvents: DrawingEvent[]) => void>,
+  MutableRefObject<(writeHistory: LetterType[]) => void>,
+  (data: any) => void
+] => {
+  const socket = useRef(new WebSocket(config.WS_URL));
+  const onExternalDraw = useRef((_: any) =>
+    console.error("No draw function set")
+  );
+  const onExternalWrite = useRef((_: any) =>
+    console.error("No write function set")
+  );
+  const [readyState, setReadyState] = useState(WebSocket.CONNECTING);
 
   useEffect(() => {
     console.log(`WS_URL: ${config.WS_URL}`);
-    socket.current = new WebSocket(config.WS_URL);
 
     const sendURL = () => {
       const payload = JSON.stringify({
@@ -46,20 +65,22 @@ export const useWsApi = (url) => {
     });
 
     socket.current.addEventListener("message", (data) => {
-      const event = JSON.parse(data.data);
+      const event: WebSocketPayload = JSON.parse(data.data);
       if (event.action === "DRAWING_EVENTS") {
         onExternalDraw.current(event.drawingEvents);
       } else if (event.action === "DRAWING_HISTORY") {
-        event.drawingHistory.forEach((event) => {
-          onExternalDraw.current(event.drawingEvents);
-        });
+        event.drawingHistory.forEach(
+          (event: { drawingEvents: DrawingEvent[] }) => {
+            onExternalDraw.current(event.drawingEvents);
+          }
+        );
       } else if (event.action === "WRITE_HISTORY") {
         onExternalWrite.current(event.writeHistory);
       }
     });
   }, [url]);
 
-  const sendEvent = (data) => {
+  const sendEvent = (data: WebSocketPayload) => {
     if (!socket.current || socket.current.readyState !== WebSocket.OPEN) {
       console.error("Unable to send event: connection not open");
       return;
