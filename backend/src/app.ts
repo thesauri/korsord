@@ -1,23 +1,20 @@
-"use strict";
-
-require("dotenv").config({ path: __dirname + "/.env" });
-
-const WebSocket = require("ws");
-const express = require("express");
-const http = require("http");
-
-const restApiRouter = require("./restApi");
-
-const {
+import express, { Response } from "express";
+import http from "http";
+import { config } from "dotenv";
+import WebSocket, { AddressInfo } from "ws";
+import {
   addDrawEvent,
   getAllDrawEvents,
   addWriteEvent,
   getLatestWriteEvents,
   closeDB,
   db
-} = require("./db");
+} from "./db";
+import restApiRouter from "./restApi";
 
-const enableCORS = (res) => {
+config({ path: __dirname + "/.env" });
+
+const enableCORS = (res: Response) => {
   // TODO: Update the origin list once we use the API for something important
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
@@ -41,10 +38,10 @@ app.use("*", express.static("../frontend/build/"));
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-const clients = {};
+const clients: Record<string, { ws: WebSocket; writeIdx: number }[]> = {};
 
 wss.on("connection", (ws) => {
-  ws.on("message", (msgString) => {
+  ws.on("message", (msgString: string) => {
     const msg = JSON.parse(msgString);
     if (!msg.event || !msg.url) {
       console.error("Invalid msg: \n" + JSON.stringify(msg));
@@ -97,6 +94,14 @@ wss.on("connection", (ws) => {
           const latestId = rows[rows.length - 1].id;
 
           const currentClient = clients[url].find((client) => client.ws === ws);
+
+          if (!currentClient) {
+            console.error(
+              "Unable to find currentClient in getLatestWriteEvents"
+            );
+            return;
+          }
+
           currentClient.writeIdx = latestId;
 
           const payload = JSON.stringify({
@@ -132,11 +137,12 @@ wss.on("connection", (ws) => {
   });
 });
 
-server.listen(process.env.SERVER_PORT || 8080, () =>
-  console.log(`Server started on port ${server.address().port}`)
-);
+server.listen(process.env.SERVER_PORT || 8080, () => {
+  const address = server.address() as AddressInfo;
+  console.log(`Server started on port ${address.port}`);
+});
 
-process.on("SIGINT", function () {
+process.on("SIGINT", () => {
   closeDB().then(() => process.exit());
 
   setTimeout(() => process.exit(), 100);

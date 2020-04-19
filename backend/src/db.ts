@@ -1,16 +1,15 @@
-"use strict";
-const sqlite3 = require("sqlite3").verbose();
+import sqlite3 from "sqlite3";
+import { Crossword } from "types";
 
-const db = new sqlite3.Database("./app.db", (err) => {
+export const db = new sqlite3.Database("./app.db", (err) => {
   if (err) {
     console.error(err.message);
     process.exit();
   }
   console.log("Connected to the SQlite database.");
 });
-exports.db = db;
 
-exports.closeDB = () => {
+export const closeDB = () => {
   return new Promise((resolve, _) => {
     db.close((err) => {
       if (err) {
@@ -85,7 +84,7 @@ db.serialize(() => {
   );
 });
 
-exports.addDrawEvent = (url, event) => {
+export const addDrawEvent = (url: string, event: string) => {
   db.run(
     "insert into events(url, event, eventType) values(?, ?, 0);",
     [url, event],
@@ -95,7 +94,10 @@ exports.addDrawEvent = (url, event) => {
   );
 };
 
-exports.getAllDrawEvents = (url, callback) => {
+export const getAllDrawEvents = (
+  url: string,
+  callback: (drawEvents: string) => void
+) => {
   db.all(
     "select event from events where url = ? and eventType = 0 order by id asc;",
     url,
@@ -107,7 +109,7 @@ exports.getAllDrawEvents = (url, callback) => {
   );
 };
 
-exports.addWriteEvent = (url, event) => {
+export const addWriteEvent = (url: string, event: string) => {
   db.run(
     "insert into events(url, event, eventType) values(?, ?, 1);",
     [url, event],
@@ -117,7 +119,11 @@ exports.addWriteEvent = (url, event) => {
   );
 };
 
-exports.getLatestWriteEvents = (url, writeIdx, callback) => {
+export const getLatestWriteEvents = (
+  url: string,
+  writeIdx: number,
+  callback: (writeEvents: { id: number; event: string }[]) => void
+) => {
   db.all(
     "select id, event from events where url = ? and id > ? and eventType = 1 order by id asc;",
     [url, writeIdx],
@@ -128,7 +134,10 @@ exports.getLatestWriteEvents = (url, writeIdx, callback) => {
   );
 };
 
-exports.addCrossword = (crossword, callback) => {
+export const addCrossword = (
+  crossword: Crossword,
+  callback: (error: Error | null) => void
+) => {
   const { newspaper, publishedDate, imageUrl, metadataUrl } = crossword;
   db.run(
     "insert into crosswords(newspaper, publishedDate, imageUrl, metadataUrl) values (?, ?, ?, ?);",
@@ -140,18 +149,25 @@ exports.addCrossword = (crossword, callback) => {
   );
 };
 
-exports.getCrossword = (crosswordId, callback) => {
+export const getCrossword = (
+  crosswordId: number,
+  callback: (error: Error | null, crossword: Crossword | null) => void
+) => {
   db.all(
     "select crosswordId, newspaper, publishedDate, imageUrl, metadataUrl from crosswords where crosswordId = ?;",
     [crosswordId],
-    (err, rows) => {
-      if (err) console.log(err);
-      callback(rows);
+    (err, rows: Crossword[]) => {
+      if (err || rows.length !== 1) {
+        console.log(err);
+        callback(err, null);
+        return;
+      }
+      callback(null, rows[0]);
     }
   );
 };
 
-exports.getCrosswords = (callback) => {
+export const getCrosswords = (callback: (crosswords: Crossword[]) => void) => {
   db.all(
     "select crosswordId, newspaper, publishedDate, imageUrl, metadataUrl from crosswords order by publishedDate desc;",
     (err, rows) => {
@@ -161,24 +177,38 @@ exports.getCrosswords = (callback) => {
   );
 };
 
-exports.addGame = (url, crosswordId, callback) => {
+export const addGame = (
+  url: string,
+  crosswordId: number,
+  callback: (error: Error | null) => void
+) => {
   db.run(
     "insert into games(url, crossword) values (?, ?);",
     [url, crosswordId],
-    (err, rows) => {
+    (err) => {
       if (err) console.log(err);
-      callback(err, rows);
+      callback(err);
     }
   );
 };
 
-exports.getGame = (url, callback) => {
+export const getGame = (
+  url: string,
+  callback: (
+    error: Error | null,
+    game: { url: string; crossword: number } | null
+  ) => void
+) => {
   db.all(
     "select url, crossword from games where url = ?;",
     [url],
     (err, rows) => {
-      if (err) console.log(err);
-      callback(err, rows);
+      if (err || rows.length !== 0) {
+        console.log(err);
+        callback(err, null);
+        return;
+      }
+      callback(null, rows[0]);
     }
   );
 };

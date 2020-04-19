@@ -3,7 +3,8 @@
   "compilerOptions": {
     "rootDir": "src/",
     "outDir": "dist/",
-    "allowJs": true
+    "allowJs": true,
+    "module": "ES2015"
   },
   "include": ["./src"],
   "exclude": ["node_modules", "dist"]

@@ -1,8 +1,9 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "app.js",
+  "main": "dist/app.js",
   "license": "MIT",
+  "type": "module",
   "dependencies": {
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
@@ -11,5 +12,10 @@
   },
   "scripts": {
     "start": "tsc && node dist/app.js"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.6",
+    "@types/sqlite3": "^3.1.6",
+    "@types/ws": "^7.2.4"
   }
 }

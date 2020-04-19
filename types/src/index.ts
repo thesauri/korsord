@@ -1,3 +1,11 @@
+export interface Crossword {
+  crosswordId?: number;
+  newspaper: string;
+  publishedDate: string;
+  imageUrl: string;
+  metadataUrl: string;
+}
+
 export interface DrawingEvent {
   x: number;
   y: number;
