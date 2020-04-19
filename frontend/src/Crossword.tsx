@@ -459,9 +459,7 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
         height={props.image.height}
         className="crossword"
       ></canvas>
-      {
-        readyState === WebSocket.CLOSED && <ConnectionErrorPopup />
-      }
+      {readyState === WebSocket.CLOSED && <ConnectionErrorPopup />}
       <Sidebar mode={mode} setMode={setMode} />
     </div>
   );

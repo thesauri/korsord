@@ -3,26 +3,32 @@ import { config } from "./Constants";
 import { LetterType } from "./Grid";
 import { DrawingEvent } from "./Crossword";
 
-type EventTypes = "DRAWING_EVENTS" | "DRAWING_HISTORY" | "WRITE_HISTORY"
+type EventTypes = "DRAWING_EVENTS" | "DRAWING_HISTORY" | "WRITE_HISTORY";
 
 interface DataInterface {
-  action: EventTypes,
-  event?: LetterType,
-  drawingEvents?: DrawingEvent[],
+  action: EventTypes;
+  event?: LetterType;
+  drawingEvents?: DrawingEvent[];
   // TODO: implement when converting app.js to typescript
-  drawingHistory?: any, 
-  writeHistory?: any,
+  drawingHistory?: any;
+  writeHistory?: any;
 }
 
-export const useWsApi = (url: string): [
+export const useWsApi = (
+  url: string
+): [
   number,
   MutableRefObject<(drawingEvents: DrawingEvent[]) => void>,
   MutableRefObject<(writeHistory: LetterType[]) => void>,
-  (data: any) => void,
+  (data: any) => void
 ] => {
   const socket = useRef(new WebSocket(config.WS_URL));
-  const onExternalDraw = useRef((_: any) => console.error("No draw function set"));
-  const onExternalWrite = useRef((_: any) => console.error("No write function set"));
+  const onExternalDraw = useRef((_: any) =>
+    console.error("No draw function set")
+  );
+  const onExternalWrite = useRef((_: any) =>
+    console.error("No write function set")
+  );
   const [readyState, setReadyState] = useState(WebSocket.CONNECTING);
 
   useEffect(() => {
@@ -63,9 +69,11 @@ export const useWsApi = (url: string): [
       if (event.action === "DRAWING_EVENTS") {
         onExternalDraw.current(event.drawingEvents);
       } else if (event.action === "DRAWING_HISTORY") {
-        event.drawingHistory.forEach((event: { drawingEvents: DrawingEvent[] }) => {
-          onExternalDraw.current(event.drawingEvents);
-        });
+        event.drawingHistory.forEach(
+          (event: { drawingEvents: DrawingEvent[] }) => {
+            onExternalDraw.current(event.drawingEvents);
+          }
+        );
       } else if (event.action === "WRITE_HISTORY") {
         onExternalWrite.current(event.writeHistory);
       }
