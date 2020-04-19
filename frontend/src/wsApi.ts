@@ -5,7 +5,7 @@ import { DrawingEvent } from "./Crossword";
 
 type EventTypes = "DRAWING_EVENTS" | "DRAWING_HISTORY" | "WRITE_HISTORY";
 
-interface DataInterface {
+interface WebSocketPayload {
   action: EventTypes;
   event?: LetterType;
   drawingEvents?: DrawingEvent[];
@@ -65,7 +65,7 @@ export const useWsApi = (
     });
 
     socket.current.addEventListener("message", (data) => {
-      const event: DataInterface = JSON.parse(data.data);
+      const event: WebSocketPayload = JSON.parse(data.data);
       if (event.action === "DRAWING_EVENTS") {
         onExternalDraw.current(event.drawingEvents);
       } else if (event.action === "DRAWING_HISTORY") {
@@ -80,7 +80,7 @@ export const useWsApi = (
     });
   }, [url]);
 
-  const sendEvent = (data: DataInterface) => {
+  const sendEvent = (data: WebSocketPayload) => {
     if (!socket.current || socket.current.readyState !== WebSocket.OPEN) {
       console.error("Unable to send event: connection not open");
       return;
