@@ -1,18 +1,6 @@
 import { useState, useRef, useEffect, MutableRefObject } from "react";
 import { config } from "./Constants";
-import { LetterType } from "./Grid";
-import { DrawingEvent } from "./Crossword";
-
-type EventTypes = "DRAWING_EVENTS" | "DRAWING_HISTORY" | "WRITE_HISTORY";
-
-interface WebSocketPayload {
-  action: EventTypes;
-  event?: LetterType;
-  drawingEvents?: DrawingEvent[];
-  // TODO: implement when converting app.js to typescript
-  drawingHistory?: any;
-  writeHistory?: any;
-}
+import { WebSocketPayload, DrawingEvent, LetterType } from "types";
 
 export const useWsApi = (
   url: string

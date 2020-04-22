@@ -5,6 +5,7 @@
     "frontend",
     "types"
   ],
+  "type": "module",
   "scripts": {
     "backend": "yarn workspace backend",
     "build": "(cd types && tsc) && yarn workspace frontend build",

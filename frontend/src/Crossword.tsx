@@ -5,30 +5,13 @@ import { useState } from "react";
 import "./Crossword.css";
 import { useWsApi } from "./wsApi";
 
-import Grid, {
-  createLetterArray,
-  createCoordinateGrid,
-  Square,
-  LetterType,
-  Vec2
-} from "./Grid";
+import Grid, { createLetterArray, createCoordinateGrid } from "./Grid";
 import Sidebar from "./Sidebar";
 import { ConnectionErrorPopup } from "./ConnectionErrorPopup";
+import { DrawingEvent, EditMode, WriteMode, Square, LetterType, Vec2 } from "types";
 
 const ERASERSIZE = 8;
 const BRUSHSIZE = 1;
-
-export enum EditMode {
-  DRAW = 0,
-  WRITE = 1,
-  ERASE = 2
-}
-
-export enum WriteMode {
-  STATIONARY = 0,
-  RIGHT = 1,
-  DOWN = 2
-}
 
 interface CrosswordProps {
   url: string;
@@ -39,14 +22,6 @@ interface CrosswordProps {
     };
   };
   image: HTMLImageElement;
-}
-
-export interface DrawingEvent {
-  x: number;
-  y: number;
-  globalCompositeOperation: string;
-  lineWidth: number;
-  action: string;
 }
 
 const Crossword: React.FC<CrosswordProps> = (props) => {

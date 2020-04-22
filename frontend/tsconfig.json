@@ -6,7 +6,8 @@
     "rootDir": "src",
     "sourceMap": true,
     "allowJs": true,
-    "noEmit": true
+    "noEmit": true,
+    "module": "esnext"
   },
   "include": ["./src"],
   "exclude": ["node_modules", "build"]

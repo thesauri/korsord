@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "./Sidebar.css";
-import { EditMode } from "./Crossword";
+import { EditMode } from "types";
 
 interface SidebarProps {
   mode: EditMode;
