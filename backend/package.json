@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "main": "dist/app.js",
   "license": "MIT",
-  "type": "module",
   "dependencies": {
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
