@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, MutableRefObject } from "react";
 import { config } from "./Constants";
 import { LetterType } from "./Grid";
-import { DrawingEvent } from "./Crossword";
+import { DrawingEvent } from "./crossword/Crossword";
 
 type EventTypes = "DRAWING_EVENTS" | "DRAWING_HISTORY" | "WRITE_HISTORY";
 

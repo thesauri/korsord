@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Crossword from "./Crossword";
+import Crossword from "./crossword/Crossword";
 import "./App.css";
 import { useParams, useHistory } from "react-router-dom";
 import { config } from "./Constants";

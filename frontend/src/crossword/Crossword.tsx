@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import { useState } from "react";
 
 import "./Crossword.css";
-import { useWsApi } from "./wsApi";
+import { useWsApi } from "../wsApi";
 
 import Grid, {
   createLetterArray,
@@ -11,9 +11,10 @@ import Grid, {
   Square,
   LetterType,
   Vec2
-} from "./Grid";
-import Sidebar from "./Sidebar";
-import { ConnectionErrorPopup } from "./ConnectionErrorPopup";
+} from "../Grid";
+import Sidebar from "../Sidebar";
+import { ConnectionErrorPopup } from "../ConnectionErrorPopup";
+import { CrosswordImage } from "./CrosswordImage";
 
 const ERASERSIZE = 8;
 const BRUSHSIZE = 1;
@@ -69,16 +70,6 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
     setCoordGrid(createCoordinateGrid(props.metadata.squares.grid));
     setLetters(createLetterArray(props.metadata.squares.grid));
   }, [props.metadata.squares]);
-
-  const backgroundRef = useCallback(
-    (node) => {
-      if (node !== null && node.getContext) {
-        const context = node.getContext("2d");
-        context.drawImage(props.image, 0, 0);
-      }
-    },
-    [props.image]
-  );
 
   const canvasRef = useCallback((node) => {
     if (node !== null) {
@@ -438,12 +429,7 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
 
   return (
     <div>
-      <canvas
-        width={props.image.width}
-        height={props.image.height}
-        ref={backgroundRef}
-        className="crossword"
-      ></canvas>
+      <CrosswordImage image={props.image} />
       {props.image &&
         cursorPosition &&
         props.metadata.squares &&
