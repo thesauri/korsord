@@ -13,7 +13,7 @@ import Grid, {
   Vec2
 } from "./grid/Grid";
 import Sidebar from "../Sidebar";
-import { ConnectionErrorPopup } from "../ConnectionErrorPopup";
+import ErrorPopupIfWebSocketClosed from "./ErrorPopupIfWebSocketClosed";
 import { CrosswordImage } from "./CrosswordImage";
 
 const ERASERSIZE = 8;
@@ -446,7 +446,7 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
         height={props.image.height}
         className="crossword"
       ></canvas>
-      {readyState === WebSocket.CLOSED && <ConnectionErrorPopup />}
+      <ErrorPopupIfWebSocketClosed readyState={readyState} />
       <Sidebar mode={mode} setMode={setMode} />
     </div>
   );
