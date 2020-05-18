@@ -11,7 +11,7 @@ import Grid, {
   Square,
   LetterType,
   Vec2
-} from "../Grid";
+} from "./grid/Grid";
 import Sidebar from "../Sidebar";
 import { ConnectionErrorPopup } from "../ConnectionErrorPopup";
 import { CrosswordImage } from "./CrosswordImage";

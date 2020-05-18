@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback, useState } from "react";
 import "./Grid.css";
 
-import { WriteMode } from "./crossword/Crossword";
+import { WriteMode } from "../Crossword";
 
 // Define array type that only accepts a specified number of elements
 // https://stackoverflow.com/a/59906630
