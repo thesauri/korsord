@@ -430,21 +430,15 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
   return (
     <div>
       <CrosswordImage image={props.image} />
-      {props.image &&
-        cursorPosition &&
-        props.metadata.squares &&
-        coordGrid &&
-        letters && (
-          <Grid
-            cursorPosition={cursorPosition}
-            letters={letters}
-            showCursor={mode === EditMode.WRITE}
-            squares={props.metadata.squares}
-            width={props.image.width}
-            height={props.image.height}
-            writeMode={writeMode}
-          />
-        )}
+      <Grid
+        cursorPosition={cursorPosition}
+        letters={letters}
+        showCursor={mode === EditMode.WRITE}
+        squares={props.metadata.squares}
+        width={props.image.width}
+        height={props.image.height}
+        writeMode={writeMode}
+      />
       <canvas
         id="draw-layer"
         ref={canvasRef}
