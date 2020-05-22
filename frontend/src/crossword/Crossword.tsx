@@ -15,6 +15,7 @@ import Sidebar from "../Sidebar";
 import ErrorPopupIfWebSocketClosed from "./ErrorPopupIfWebSocketClosed";
 import { CrosswordImage } from "./CrosswordImage";
 import { Vec2 } from "./grid/fixedLengthArrays";
+import { useCanvasAndContext } from "./hooks/useCanvasAndContext";
 
 const ERASERSIZE = 8;
 const BRUSHSIZE = 1;
@@ -53,9 +54,6 @@ export interface DrawingEvent {
 }
 
 const Crossword: React.FC<CrosswordProps> = (props) => {
-  const [canvas, setCanvas] = useState<HTMLCanvasElement>();
-  const [context, setContext] = useState<CanvasRenderingContext2D>();
-
   const [readyState, onExternalDraw, onExternalWrite, sendEvent] = useWsApi(
     props.url
   );
@@ -69,12 +67,11 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
     createLetterArray(props.metadata.squares.grid)
   );
 
-  const canvasRef = useCallback((node) => {
-    if (node !== null) {
-      setCanvas(node);
-      setContext(node.getContext("2d"));
-    }
-  }, []);
+  const [
+    canvasRefToSetCanvasAndContext,
+    canvas,
+    context
+  ] = useCanvasAndContext();
 
   const updateCursor = useCallback(
     (relativeR, relativeC) => {
@@ -446,7 +443,7 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
       />
       <canvas
         id="draw-layer"
-        ref={canvasRef}
+        ref={canvasRefToSetCanvasAndContext}
         width={props.image.width}
         height={props.image.height}
         className="crossword"
