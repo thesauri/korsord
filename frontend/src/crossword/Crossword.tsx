@@ -9,12 +9,12 @@ import Grid, {
   createLetterArray,
   createCoordinateGrid,
   Square,
-  LetterType,
-  Vec2
+  LetterType
 } from "./grid/Grid";
 import Sidebar from "../Sidebar";
 import ErrorPopupIfWebSocketClosed from "./ErrorPopupIfWebSocketClosed";
 import { CrosswordImage } from "./CrosswordImage";
+import { Vec2 } from "./grid/fixedLengthArrays";
 
 const ERASERSIZE = 8;
 const BRUSHSIZE = 1;
@@ -31,14 +31,16 @@ export enum WriteMode {
   DOWN = 2
 }
 
+interface GridMetadata {
+  squares: {
+    medianLen: number;
+    grid: Square[][];
+  };
+}
+
 interface CrosswordProps {
   url: string;
-  metadata: {
-    squares: {
-      medianLen: number;
-      grid: Square[][];
-    };
-  };
+  metadata: GridMetadata;
   image: HTMLImageElement;
 }
 
@@ -62,14 +64,10 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
 
   const [cursorPosition, setCursorPosition] = useState<Vec2>([0, 0]);
   const [writeMode, setWriteMode] = useState<WriteMode>(WriteMode.STATIONARY);
-  const [coordGrid, setCoordGrid] = useState<number[][]>([]);
-  const [letters, setLetters] = useState<LetterType[]>([]); //createLetterArray());
-
-  useEffect(() => {
-    setCursorPosition([0, 0]);
-    setCoordGrid(createCoordinateGrid(props.metadata.squares.grid));
-    setLetters(createLetterArray(props.metadata.squares.grid));
-  }, [props.metadata.squares]);
+  const coordinateGrid = createCoordinateGrid(props.metadata.squares.grid);
+  const [letters, setLetters] = useState<LetterType[]>(
+    createLetterArray(props.metadata.squares.grid)
+  );
 
   const canvasRef = useCallback((node) => {
     if (node !== null) {
@@ -135,7 +133,7 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
       const updateAndSend = (newValue: string) => {
         const [row, column] = cursorPosition;
         const newLetters = [...letters];
-        newLetters[coordGrid[row][column]].letter = newValue;
+        newLetters[coordinateGrid[row][column]].letter = newValue;
         setLetters(newLetters);
 
         sendEvent({
@@ -168,7 +166,14 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
 
       return true;
     },
-    [coordGrid, updateCursor, cursorPosition, letters, sendEvent, writeMode]
+    [
+      coordinateGrid,
+      updateCursor,
+      cursorPosition,
+      letters,
+      sendEvent,
+      writeMode
+    ]
   );
 
   useEffect(() => {
@@ -363,7 +368,7 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
     const handleExternalWrite = (writeHistory: LetterType[]) => {
       const newLetters = [...letters];
       writeHistory.forEach(({ letter, row, column }) => {
-        newLetters[coordGrid[row][column]].letter = letter;
+        newLetters[coordinateGrid[row][column]].letter = letter;
       });
       setLetters(newLetters);
     };
@@ -423,7 +428,7 @@ const Crossword: React.FC<CrosswordProps> = (props) => {
     letters,
     props.image,
     writeModeSwitch,
-    coordGrid,
+    coordinateGrid,
     props.metadata.squares.grid
   ]);
 
